@@ -1,0 +1,22 @@
+module unload PrgEnv-pgi PrgEnv-cray PrgEnv-gnu PrgEnv-intel
+module unload cray-libsci_acc cray-libsci
+module load PrgEnv-cray
+module swap cce cce/8.4.0.223
+module load craype-accel-nvidia35
+module load cudatoolkit
+module load cmake
+
+rm -rf CMake*
+
+cmake                          \
+   -D CMAKE_BUILD_TYPE=Release \
+   -D CMAKE_C_COMPILER=cc      \
+   -D CMAKE_CXX_COMPILER=CC    \
+   -D CXX_STD=98               \
+   -D CFLAGS="-h pragma=acc,msgs" \
+   -D CXXFLAGS="-h pragma=acc,msgs" \
+   -D USE_OPENACC=1            \
+   -D USE_CUDA=0               \
+   -D USE_KOKKOS=0             \
+   ../src
+

@@ -1,0 +1,16 @@
+# Sample configure file
+
+cmake                          	        \
+   -D CMAKE_BUILD_TYPE=Release          \
+   -D CMAKE_C_COMPILER=gcc              \
+   -D CMAKE_CXX_COMPILER=g++            \
+   -D CXX_STD=11                        \
+   -D USE_OPENACC=0                     \
+   -D USE_KOKKOS=0                      \
+      -D KOKKOS_DIRECTORY=/usr/local/kokkos \
+      -D KOKKOS_WRAPPER=/usr/local/kokkos/config/nvcc_wrapper \
+   -D USE_CUDA=1                        \
+      -D CUDA_FLAGS="-arch sm_30"       \
+   ../src
+
+
