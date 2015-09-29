@@ -48,7 +48,14 @@ The inputs available are:
   seed_small.dat - This is a small single node seeded calculation that is similar to ASE_small.  Note that this benchmark takes ~10 longer than the ASE benchmark.  In the actual application seeded calculations require ~ 10x the number of rays, but 1/4th the number of iterations.  So seeded calculations typically take ~2x as long in the final application.  The miniapp compares the performance of a single iteration.  
   seed_medium.dat - This is the seeded version of ASE_medium.dat
 
-
-
+The default run command is:
+  CreateImage filename.dat
+This will run the given input for all methods availible.  Some optional arguments may be set by running:
+  createImage -arg1=value -arg2=value filename.dat
+The availible arguments are:
+  -methods=cpu,threads,...          Comma seperated list of methods to run.  The possible values are:
+     cpu, threads, Cuda, OpenAcc, Kokkos-Serial, Kokkos-Thread, Kokkos-OpenMP, Kokkos-Cuda
+  -iterations=N                     Number of iterations for each method.  May help improve timing results.
+  -scale=factor                     Increase the problem size by ~ this factor.
 
 

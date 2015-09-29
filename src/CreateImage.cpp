@@ -4,6 +4,9 @@
 #include "RayTrace.h"
 #include <iostream>
 #include <stdint.h>
+#include <string>
+#include <cstring>
+#include <sstream>
 #include <math.h>
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
@@ -38,6 +41,7 @@ inline void fread2( void *ptr, size_t size, size_t count, FILE *fid )
 }
 
 
+// Check the answer
 inline int check_ans( const double *image0, const double *I_ang0,
     const RayTrace::create_image_struct& data )
 {
@@ -74,6 +78,37 @@ inline int check_ans( const double *image0, const double *I_ang0,
 }
 
 
+// Scale the input problem
+template<class TYPE> void scale_beam( TYPE& beam, double scale )
+{
+    const double x[2] = { beam.x[0]-0.5*beam.dx, beam.x[beam.nx-1]+0.5*beam.dx};
+    const double y[2] = { beam.y[0]-0.5*beam.dy, beam.y[beam.ny-1]+0.5*beam.dy};
+    const double a[2] = { beam.a[0]-0.5*beam.da, beam.a[beam.na-1]+0.5*beam.da};
+    const double b[2] = { beam.b[0]-0.5*beam.db, beam.b[beam.nb-1]+0.5*beam.db};
+    int nx =static_cast<int>(beam.nx*scale);
+    int ny =static_cast<int>(beam.ny*scale);
+    int na =static_cast<int>(beam.na*scale);
+    int nb =static_cast<int>(beam.nb*scale);
+    delete [] beam.x;   beam.x = new double[nx];
+    delete [] beam.y;   beam.y = new double[ny];
+    delete [] beam.a;   beam.a = new double[na];
+    delete [] beam.b;   beam.b = new double[nb];
+    beam.nx = nx;       beam.dx = (x[1]-x[0])/nx;
+    beam.ny = ny;       beam.dy = (y[1]-y[0])/ny;
+    beam.na = na;       beam.da = (a[1]-a[0])/na;
+    beam.nb = nb;       beam.db = (b[1]-b[0])/nb;
+    for (int i=0; i<nx; i++) { beam.x[i] = x[0] + (0.5+i)*beam.dx; }
+    for (int i=0; i<ny; i++) { beam.y[i] = y[0] + (0.5+i)*beam.dy; }
+    for (int i=0; i<na; i++) { beam.a[i] = a[0] + (0.5+i)*beam.da; }
+    for (int i=0; i<nb; i++) { beam.b[i] = b[0] + (0.5+i)*beam.db; }
+}
+void scale_problem( RayTrace::create_image_struct& info, double scale )
+{
+    scale_beam(*const_cast<RayTrace::EUV_beam_struct*>(info.euv_beam),pow(scale,0.25));
+    if ( info.seed_beam != NULL )
+        scale_beam(*const_cast<RayTrace::seed_beam_struct*>(info.seed_beam),pow(scale,0.25));
+}
+
 
 /******************************************************************
 * The main program                                                *
@@ -95,13 +130,46 @@ int main(int argc, char *argv[])
     #endif
 
     // Check the input arguments
-    if ( argc != 2 ) {
-        std::cerr << "CreateImage called with the wrong number of arguments\n";
+    const char *err_msg = "CreateImage called with the wrong number of arguments:\n"
+        "  CreateImage <args> file.dat\n"
+        "Optional arguments:\n"
+        "  -methods=METHODS  Comma seperated list of methods to test.  Default is all availible methods\n"
+        "                    cpu, threads, Cuda, OpenAcc, Kokkos-Serial, Kokkos-Thread, Kokkos-OpenMP, Kokkos-Cuda\n";
+        "  -iterations=N     Number of iterations to run.  Time returned will be the average time/iteration.\n"
+        "  -scale=factor     Increate the size of the problem by ~ this factor. (2.0 - twice as expensive)\n"
+        "                    Note: this will disable checking the answer.\n";
+        "                    Note: the scale factor is only approximate.\n";
+    if ( argc < 2 ) {
+        std::cerr << err_msg;
         return -1;
+    }
+    const char* filename = argv[argc-1];
+    std::vector<std::string> methods;
+    int iterations = 1;
+    double scale = 1.0;
+    for (int i=1; i<argc-1; i++) {
+        if ( strncmp(argv[i],"-methods=",9)==0 ) {
+            std::string tmp(&argv[i][9]);
+            std::stringstream ss(&argv[i][9]);
+            std::string token;
+            while(std::getline(ss, token, ','))
+                methods.push_back(token);
+        } else if ( strncmp(argv[i],"-iterations=",12)==0 ) {
+            iterations = atoi(&argv[i][12]);
+        } else if ( strncmp(argv[i],"-scale=",7)==0 ) {
+            scale = atof(&argv[i][7]);
+        } else {
+            std::cerr << "Unknown option: " << argv[i] << std::endl;
+            return -2;
+        }
     }
 
     // load the input file
-    FILE *fid = fopen(argv[1],"rb");
+    FILE *fid = fopen(filename,"rb");
+    if ( fid==NULL ) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return -2;
+    }
     uint64_t N_bytes = 0;
     fread2(&N_bytes,sizeof(uint64_t),1,fid);
     char *data = new char[N_bytes];
@@ -116,31 +184,37 @@ int main(int argc, char *argv[])
     const double *I_ang0 = info.I_ang;
     info.image = NULL;
     info.I_ang = NULL;
+    if ( scale != 1.0 ) {
+        delete [] image0;   image0 = NULL;
+        delete [] I_ang0;   I_ang0 = NULL;
+        scale_problem(info,scale);
+    }
 
     // Get the list of methods to try
-    std::vector<std::string> methods;
-    methods.push_back("cpu");
-    #if CXX_STD==11 || CXX_STD==14
-        methods.push_back("threads");
-    #endif
-    #ifdef USE_CUDA
-        methods.push_back("Cuda");
-    #endif
-    #ifdef USE_OPENACC
-        methods.push_back("OpenAcc");
-    #endif
-    #ifdef USE_KOKKOS
-        methods.push_back("Kokkos-Serial");
-        #ifdef KOKKOS_HAVE_PTHREAD
-            //methods.push_back("Kokkos-Thread");
+    if ( methods.empty() ) {
+        methods.push_back("cpu");
+        #if CXX_STD==11 || CXX_STD==14
+            methods.push_back("threads");
         #endif
-        #ifdef KOKKOS_HAVE_OPENMP
-            methods.push_back("Kokkos-OpenMP");
+        #ifdef USE_CUDA
+            methods.push_back("Cuda");
         #endif
-        #ifdef KOKKOS_HAVE_CUDA
-            methods.push_back("Kokkos-Cuda");
+        #ifdef USE_OPENACC
+            methods.push_back("OpenAcc");
         #endif
-    #endif
+        #ifdef USE_KOKKOS
+            methods.push_back("Kokkos-Serial");
+            #ifdef KOKKOS_HAVE_PTHREAD
+                //methods.push_back("Kokkos-Thread");
+            #endif
+            #ifdef KOKKOS_HAVE_OPENMP
+                methods.push_back("Kokkos-OpenMP");
+            #endif
+            #ifdef KOKKOS_HAVE_CUDA
+                methods.push_back("Kokkos-Cuda");
+            #endif
+        #endif
+    }
 
     // Call create_image for each method
     int N_errors = 0;
@@ -150,11 +224,13 @@ int main(int argc, char *argv[])
         TIME_TYPE start, stop, f;
         get_frequency(&f);
         get_time(&start);
-        RayTrace::create_image(&info,methods[i]);
+        for (int it=0; it<iterations; it++)
+            RayTrace::create_image(&info,methods[i]);
         get_time(&stop);
         time[i] = get_diff(start,stop,f);
         // Check the results
-        N_errors += check_ans( image0, I_ang0, info );
+        if ( scale == 1.0 ) 
+            N_errors += check_ans( image0, I_ang0, info );
         free((void*)info.image);
         free((void*)info.I_ang);
         info.image = NULL;
