@@ -10,9 +10,6 @@
 #include "ProfilerApp.h"
 
 // AtomicModel includes
-#ifndef USE_OPENACC
-#include "interp.h"
-#endif
 #ifndef DISABLE_WRITE_FAILED_RAYS
 #include "file_utilities.h"
 #endif

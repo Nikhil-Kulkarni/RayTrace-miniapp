@@ -356,7 +356,7 @@ double bisection( std::function<double( double, Args... )>, double lb, double ub
  * @param[out] range    Optional output with the current bounds that contain the solution [lb ub]
  * @return              The next guess to use
  */
-double bisection_coeff( size_t N, const double *x, const double *r, double *range = nullptr );
+double bisection_coeff( size_t N, const double *x, const double *r, double *range = NULL );
 }
 
 #include "interp.hpp"

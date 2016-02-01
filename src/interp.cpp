@@ -237,7 +237,7 @@ double interp::bisection_coeff(
     // Finished
     delete[] x;
     delete[] r;
-    if ( range_out != nullptr ) {
+    if ( range_out != NULL ) {
         range_out[0] = range[0];
         range_out[1] = range[1];
     }
