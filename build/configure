@@ -6,6 +6,7 @@ cmake                                   \
    -D CMAKE_CXX_COMPILER=g++            \
    -D CXX_STD=11                        \
    -D USE_OPENACC=0                     \
+   -D USE_OPENMP=1                      \
    -D USE_KOKKOS=0                      \
       -D KOKKOS_DIRECTORY=/usr/local/kokkos \
       -D KOKKOS_WRAPPER=/usr/local/kokkos/config/nvcc_wrapper \

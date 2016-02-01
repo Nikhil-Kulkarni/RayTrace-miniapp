@@ -43,6 +43,23 @@ INCLUDE( Find_TIMER.cmake )
 CONFIGURE_TIMER( 0 "" )
 
 
+# Enable OpenMP
+IF ( USE_OPENMP )
+    ADD_DEFINITIONS( -DUSE_OPENMP )
+    IF ( USING_GCC )
+        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    ELSEIF ( USING_CRAY )
+    ELSEIF ( USING_PGCC )
+        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -openmp")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -openmp")
+    ELSE()
+        MESSAGE(FATAL_ERROR "Compiling with OpenMP is not yet set for this compiler")
+    ENDIF()
+    MESSAGE( "Using OpenMP" )
+ENDIF()
+
+
 # Enable OpenACC
 IF ( USE_OPENACC )
     ADD_DEFINITIONS( -DUSE_OPENACC )
@@ -96,7 +113,7 @@ IF ( USE_CUDA )
     ENDIF()
     IF(NOT CUDA_NVCC_FLAGS)
         # Set minimum requirements
-        SET( CUDA_NVCC_FLAGS "-arch=sm_20 ${CXX_STD_FLAG}" )
+        SET( CUDA_NVCC_FLAGS "-arch=sm_30 ${CXX_STD_FLAG}" )
     ENDIF()
     IF ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
         SET( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo" )
@@ -138,7 +155,7 @@ ADD_DISTCLEAN( libRayTrace.* null_timer CreateImage* )
 # Create the library
 INCLUDE_DIRECTORIES( ${RAYTRACE_SOURCE_DIR} )
 ADD_DEFINITIONS( -DDISABLE_WRITE_FAILED_RAYS )
-SET( SOURCES RayTrace RayTrace.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp interp.cpp RayTraceImageCPU.cpp )
+SET( SOURCES RayTrace RayTraceImage.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp interp.cpp RayTraceImageCPU.cpp )
 IF ( USE_OPENACC )
     SET( SOURCES ${SOURCES} RayTraceImageOpenACC.cpp )
 ENDIF()

@@ -1,5 +1,6 @@
-#include "RayTraceImageHelper.h"
 #include "RayTraceStructures.h"
+#include "common/RayTraceImageHelper.h"
+#include "utilities/RayUtilities.h"
 #include <cuda.h>
 
 
