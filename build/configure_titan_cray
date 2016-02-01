@@ -13,9 +13,10 @@ cmake                          \
    -D CMAKE_C_COMPILER=cc      \
    -D CMAKE_CXX_COMPILER=CC    \
    -D CXX_STD=98               \
-   -D CFLAGS="-h pragma=acc,msgs" \
-   -D CXXFLAGS="-h pragma=acc,msgs" \
+   -D CFLAGS="-h pragma=acc"   \
+   -D CXXFLAGS="-h pragma=acc" \
    -D USE_OPENACC=1            \
+   -D USE_OPENMP=1             \
    -D USE_CUDA=0               \
    -D USE_KOKKOS=0             \
    ../src

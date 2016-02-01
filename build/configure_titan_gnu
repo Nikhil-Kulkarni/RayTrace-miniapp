@@ -12,10 +12,11 @@ cmake                          \
    -D CMAKE_C_COMPILER=cc      \
    -D CMAKE_CXX_COMPILER=CC    \
    -D CXX_STD=11               \
+   -D USE_OPENMP=1             \
    -D USE_OPENACC=0            \
    -D USE_CUDA=1               \
-      -D CUDA_FLAGS="-arch sm_35"      \
-   -D CUDA_HOST_COMPILER="/usr/bin/gcc" \
+      -D CUDA_FLAGS="-arch sm_35" \
+   -D CUDA_HOST_COMPILER="/opt/gcc/4.9.0/bin/g++" \
    -D USE_KOKKOS=0             \
       -D KOKKOS_DIRECTORY=~/stf006/install/titan/TPLs/opt/kokkos \
    ../src
