@@ -33,9 +33,7 @@ ENDIF()
 # Include macros
 SET( PROJ RAYTRACE )
 INCLUDE( "${RAYTRACE_SOURCE_DIR}/macros.cmake" )
-IDENTIFY_COMPILER()
-ADD_USER_FLAGS()
-ADD_CXX_STD()
+SET_COMPILER_FLAGS()
 
 
 # Link external projects
@@ -51,8 +49,16 @@ IF ( USE_OPENMP )
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
     ELSEIF ( USING_CRAY )
     ELSEIF ( USING_PGCC )
-        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -openmp")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -openmp")
+        #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -openmp")
+        #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -openmp")
+        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mp")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp")
+    ELSEIF ( USING_CLANG )
+        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp -pthread")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -pthread")
+    ELSEIF ( USING_XL )
+        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qsmp=omp")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qsmp=omp")
     ELSE()
         MESSAGE(FATAL_ERROR "Compiling with OpenMP is not yet set for this compiler")
     ENDIF()
@@ -172,7 +178,7 @@ ADD_LIBRARY( ${SOURCES} ${CUBINS} )
 
 # Add the applications
 ADD_EXECUTABLE( CreateImage CreateImage.cpp )
-TARGET_LINK_LIBRARIES( CreateImage RayTrace ${CUDA_LIBRARIES} ${KOKKOS_LIB} ${TIMER_LIBS} )
+TARGET_LINK_LIBRARIES( CreateImage RayTrace ${CUDA_LIBRARIES} ${KOKKOS_LIB} ${TIMER_LIBS} ${LDFLAGS} ${LDLIBS} )
 INSTALL( TARGETS CreateImage DESTINATION ${RAYTRACE_INSTALL_DIR}/bin )
 
 
