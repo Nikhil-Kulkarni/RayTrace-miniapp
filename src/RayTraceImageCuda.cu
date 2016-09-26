@@ -34,7 +34,7 @@
 
 
 // Atomic add operation for double
-__device__ double atomicAdd(double* address, double val)
+__device__ double atomicAdd2(double* address, double val)
 {
     unsigned long long int* address_as_ull = (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
@@ -113,14 +113,14 @@ void RayTraceImageCudaKernel( int N, int nx, int ny, int na, int nb, int nv,
             if (i1>=0 && i2>=0){ 
                 double *Iv2 = &image[nv*(i1+i2*nx)];
                 for (int iv=0; iv<nv; iv++)
-                    atomicAdd(&Iv2[iv],Iv[iv]*scale);
+                    atomicAdd2(&Iv2[iv],Iv[iv]*scale);
             }
             // Copy I_out into I_ang 
             if (i3>=0 && i4>=0) {    
                 double tmp = 0.0;
                 for (int iv=0; iv<nv; iv++)
                     tmp += 2.0*dv[iv]*Iv[iv];
-                atomicAdd(&I_ang[i3+i4*na],tmp);
+                atomicAdd2(&I_ang[i3+i4*na],tmp);
             }
         }
     }

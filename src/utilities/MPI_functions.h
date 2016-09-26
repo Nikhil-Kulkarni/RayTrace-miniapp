@@ -43,9 +43,9 @@ inline int MPI_size( MPI_Comm ) { return 1; }
 * code, then the first processor with a non-zero entry will be        *
 * returned across all processors.                                     *
 **********************************************************************/
+#ifdef USE_MPI
 inline int GATHER_ERROR( int error, MPI_Comm comm )
 {
-#ifdef USE_MPI
     int size = MPI_size( comm );
     if ( size == 1 )
         return error;
@@ -73,9 +73,11 @@ inline int GATHER_ERROR( int error, MPI_Comm comm )
         delete[] error2;
     }
 #endif
-#endif
     return error;
 }
+#else
+inline int GATHER_ERROR( int error, MPI_Comm& ) { return error; }
+#endif
 
 
 #endif

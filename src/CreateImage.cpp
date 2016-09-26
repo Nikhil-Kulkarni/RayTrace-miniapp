@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string>
 
+
 #if defined( WIN32 ) || defined( _WIN32 ) || defined( WIN64 ) || defined( _WIN64 )
 #include <windows.h>
 #define get_time( x ) QueryPerformanceCounter( x )
@@ -53,7 +54,7 @@ inline void fread2( void *ptr, size_t size, size_t count, FILE *fid )
 
 
 // Check the answer
-inline int check_ans(
+inline bool check_ans(
     const double *image0, const double *I_ang0, const RayTrace::create_image_struct &data )
 {
     size_t N_image  = data.euv_beam->nx * data.euv_beam->ny * data.euv_beam->nv;
@@ -87,7 +88,7 @@ inline int check_ans(
         std::cerr << "    image: " << error[0] << " " << norm0[0] << " " << norm1[0] << std::endl;
         std::cerr << "    I_ang: " << error[1] << " " << norm0[1] << " " << norm1[1] << std::endl;
     }
-    return pass ? 0 : 1;
+    return pass;
 }
 
 
@@ -141,68 +142,62 @@ void scale_problem( RayTrace::create_image_struct &info, double scale )
 }
 
 
-/******************************************************************
-* The main program                                                *
-******************************************************************/
-int main( int argc, char *argv[] )
-{
-
-// Initialize kokkos
-#ifdef USE_KOKKOS
-#ifdef KOKKOS_HAVE_PTHREAD
-    int argc2             = 1;
-    const char *argv2[10] = { NULL };
-    argv2[0]              = argv[0];
-#ifdef KOKKOS_HAVE_PTHREAD
-    argv2[argc2] = "--kokkos-threads=16";
-    argc2++;
-#endif
-    Kokkos::initialize( argc2, (char **) argv2 );
-#else
-    Kokkos::initialize( argc, argv );
-#endif
-#endif
-
-    // Check the input arguments
-    const char *err_msg = "CreateImage called with the wrong number of arguments:\n"
-                          "  CreateImage <args> file.dat\n"
-                          "Optional arguments:\n"
-                          "  -methods=METHODS  Comma seperated list of methods to test.  Default "
-                          "is all availible methods\n"
-                          "                    cpu, threads, OpenMP, Cuda, OpenAcc, Kokkos-Serial, "
-                          "Kokkos-Thread, Kokkos-OpenMP, Kokkos-Cuda\n"
-                          "  -iterations=N     Number of iterations to run.  Time returned will be "
-                          "the average time/iteration.\n"
-                          "  -scale=factor     Increate the size of the problem by ~ this factor. "
-                          "(2.0 - twice as expensive)\n"
-                          "                    Note: this will disable checking the answer.\n"
-                          "                    Note: the scale factor is only approximate.\n";
-    if ( argc < 2 ) {
-        std::cerr << err_msg;
-        return -1;
-    }
-    const char *filename = argv[argc - 1];
-    std::vector<std::string> methods;
+// Clas to hold options
+class Options {
+public:
+    Options() {};
     int iterations = 1;
     double scale   = 1.0;
-    for ( int i = 1; i < argc - 1; i++ ) {
-        if ( strncmp( argv[i], "-methods=", 9 ) == 0 ) {
-            std::stringstream ss( &argv[i][9] );
-            std::string token;
-            while ( std::getline( ss, token, ',' ) )
-                methods.push_back( token );
-        } else if ( strncmp( argv[i], "-iterations=", 12 ) == 0 ) {
-            iterations = atoi( &argv[i][12] );
-        } else if ( strncmp( argv[i], "-scale=", 7 ) == 0 ) {
-            scale = atof( &argv[i][7] );
-        } else {
-            std::cerr << "Unknown option: " << argv[i] << std::endl;
-            return -2;
+    std::vector<std::string> methods;
+    std::vector<std::string> read_cmd( int argc, char *argv[] )
+    {
+        const char *err_msg = "CreateImage called with the wrong number of arguments:\n"
+            "  CreateImage <args> file.dat\n"
+            "Optional arguments:\n"
+            "  -methods=METHODS  Comma seperated list of methods to test.  Default is all availible methods\n"
+            "                    cpu, threads, OpenMP, Cuda, OpenAcc, Kokkos-Serial, "
+            "Kokkos-Thread, Kokkos-OpenMP, Kokkos-Cuda\n"
+            "  -iterations=N     Number of iterations to run.  Time returned will be "
+            "the average time/iteration.\n"
+            "  -scale=factor     Increate the size of the problem by ~ this factor. "
+            "(2.0 - twice as expensive)\n"
+            "                    Note: this will disable checking the answer.\n"
+            "                    Note: the scale factor is only approximate.\n";
+        std::vector<std::string> filenames;
+        for ( int i = 1; i < argc; i++ ) {
+            if ( argv[i][0] == '-' ) {
+                // Processing an argument
+                if ( strncmp( argv[i], "-methods=", 9 ) == 0 ) {
+                    std::stringstream ss( &argv[i][9] );
+                    std::string token;
+                    while ( std::getline( ss, token, ',' ) )
+                        methods.push_back( token );
+                } else if ( strncmp( argv[i], "-iterations=", 12 ) == 0 ) {
+                    iterations = atoi( &argv[i][12] );
+                } else if ( strncmp( argv[i], "-scale=", 7 ) == 0 ) {
+                    scale = atof( &argv[i][7] );
+                } else {
+                    std::cerr << "Unknown option: " << argv[i] << std::endl;
+                    return std::vector<std::string>();
+                }
+            } else {
+                // Processing a filename
+                filenames.push_back( argv[i] );
+            }
         }
+        if ( filenames.empty() )
+            std::cerr << err_msg;
+        return filenames;
     }
+};
 
+
+// Run the tests for a single file
+int run_tests( const std::string& filename, const Options& options )
+{
+    printf( "\nRunning tests for %s\n\n", filename.c_str() );
     // load the input file
-    FILE *fid = fopen( filename, "rb" );
+    FILE *fid = fopen( filename.c_str(), "rb" );
     if ( fid == NULL ) {
         std::cerr << "Error opening file: " << filename << std::endl;
         return -2;
@@ -214,6 +209,7 @@ int main( int argc, char *argv[] )
     fclose( fid );
 
     // Create the image structure
+    double scale = options.scale;
     RayTrace::create_image_struct info;
     info.unpack( std::pair<char *, size_t>( data, N_bytes ) );
     delete[] data;
@@ -231,6 +227,7 @@ int main( int argc, char *argv[] )
     }
 
     // Get the list of methods to try
+    std::vector<std::string> methods = options.methods;
     if ( methods.empty() ) {
         methods.push_back( "cpu" );
 #if CXX_STD == 11 || CXX_STD == 14
@@ -268,13 +265,16 @@ int main( int argc, char *argv[] )
         TIME_TYPE start, stop, f;
         get_frequency( &f );
         get_time( &start );
-        for ( int it = 0; it < iterations; it++ )
+        for ( int it = 0; it < options.iterations; it++ )
             RayTrace::create_image( &info, methods[i] );
         get_time( &stop );
         time[i] = get_diff( start, stop, f );
         // Check the results
-        if ( scale == 1.0 )
-            N_errors += check_ans( image0, I_ang0, info );
+        if ( scale == 1.0 ) {
+            bool pass = check_ans( image0, I_ang0, info );
+            if ( !pass )
+                N_errors++;
+        }
         free( (void *) info.image );
         free( (void *) info.I_ang );
         info.image = NULL;
@@ -291,6 +291,43 @@ int main( int argc, char *argv[] )
     delete info.seed_beam;
     delete[] info.gain;
     delete info.seed;
+    return N_errors;
+}
+
+
+/******************************************************************
+* The main program                                                *
+******************************************************************/
+int main( int argc, char *argv[] )
+{
+
+// Initialize kokkos
+#ifdef USE_KOKKOS
+#ifdef KOKKOS_HAVE_PTHREAD
+    int argc2             = 1;
+    const char *argv2[10] = { NULL };
+    argv2[0]              = argv[0];
+#ifdef KOKKOS_HAVE_PTHREAD
+    argv2[argc2] = "--kokkos-threads=16";
+    argc2++;
+#endif
+    Kokkos::initialize( argc2, (char **) argv2 );
+#else
+    Kokkos::initialize( argc, argv );
+#endif
+#endif
+
+    // Check the input arguments
+    Options options;
+    std::vector<std::string> filenames = options.read_cmd( argc, argv );
+    if ( filenames.empty() )
+        return -2;
+
+    // Run the tests for all files
+    int N_errors = 0;
+    for (size_t i=0; i<filenames.size(); i++)
+        N_errors += run_tests( filenames[i], options );
+
     if ( N_errors == 0 )
         std::cout << "All tests passed\n";
     else
