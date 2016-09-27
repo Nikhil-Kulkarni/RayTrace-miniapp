@@ -2,7 +2,7 @@
 #include "utilities/MPI_functions.h"
 #include "utilities/RayUtilities.h"
 
-#include "math.h"
+#include <math.h>
 #include <algorithm>
 #include <assert.h>
 #include <stdio.h>
@@ -26,10 +26,10 @@ extern void ray_seed_struct_free_device_cuda( const RayTrace::ray_seed_struct *d
 
 #ifdef USE_ATOMIC_MODEL
 #include "ProfilerApp.h"
-#include "file_utilities.h"
-#include "interp.h"
+#include "AtomicModel/file_utilities.h"
+#include "AtomicModel/interp.h"
 #else
-#include "interp.h"
+#include "AtomicModel/interp.h"
 namespace file_utilities {
 static void write_scalar_int( FILE *, const char *, int ) {}
 static void write_variable_float( FILE *, const char *, size_t, const float *, bool = false ) {}
@@ -1522,21 +1522,15 @@ void RayTrace::seed_beam_shape_struct::unpack( std::pair<const char *, size_t> d
     N_bytes += 3 * sizeof( int );
     if ( compression == 0 ) {
         // No compression, read the raw data
-        double *data_double = (double *) &data[N_bytes];
         T                   = new double[n];
         It                  = new double[3 * n];
         Ivt                 = new double[3 * n * nv];
-        int Ns              = 0;
-        for ( int j = 0; j < n; j++ )
-            T[j]    = data_double[Ns + j];
-        Ns += n;
-        for ( int j = 0; j < 3 * n; j++ )
-            It[j]   = data_double[Ns + j];
-        Ns += n * 3;
-        for ( int j = 0; j < 3 * n * nv; j++ )
-            Ivt[j]  = data_double[Ns + j];
-        Ns += nv * n * 3;
-        N_bytes += Ns * sizeof( double );
+        memcpy(T,&data[N_bytes],n*sizeof(double));
+        N_bytes += n*sizeof(double);
+        memcpy(It,&data[N_bytes],3*n*sizeof(double));
+        N_bytes += 3*n*sizeof(double);
+        memcpy(Ivt,&data[N_bytes],3*n*nv*sizeof(double));
+        N_bytes += 3*n*nv*sizeof(double);
     } else if ( compression == 1 ) {
         // The data was saved without zeros
         Utilities::decompress_array( n, size_T, (unsigned char *) &data[N_bytes], compression, &T );
@@ -1748,8 +1742,12 @@ std::pair<char *, size_t> RayTrace::seed_beam_struct::pack( int compression ) co
     for ( int i = 0; i < N; i++ )
         N_bytes_est += seed_shape_data[i].second + sizeof( int ); // Storage space for seed_shap
     char *data = new char[N_bytes_est];
-    if ( data == NULL )
+    if ( data == NULL ) {
+        for ( int i = 0; i < N; i++ )
+            delete[] seed_shape_data[i].first;
+        delete[] seed_shape_data;
         return std::pair<char *, size_t>( (char *) NULL, 0 );
+    }
     // Create and save the byte array header
     RAY_ASSERT( sizeof( byte_array_header ) == 16 );
     byte_array_header *data1 = reinterpret_cast<byte_array_header *>( data );
@@ -1944,15 +1942,12 @@ size_t read_old_seed_shape_data(
         T                         = new double[n_T];
         It                        = new double[n_It];
         Ivt                       = new double[n_Ivt];
-        const double *data_double = (const double *) &data[N_bytes];
-        int Ns                    = 0;
-        memcpy( T, &data_double[Ns], n_T * sizeof( double ) );
-        Ns += n_T;
-        memcpy( It, &data_double[Ns], n_It * sizeof( double ) );
-        Ns += n_It;
-        memcpy( Ivt, &data_double[Ns], n_Ivt * sizeof( double ) );
-        Ns += n_Ivt;
-        N_bytes += Ns * sizeof( double );
+        memcpy( T, &data[N_bytes], n_T * sizeof( double ) );
+        N_bytes += n_T * sizeof( double );
+        memcpy( It, &data[N_bytes], n_It * sizeof( double ) );
+        N_bytes += n_It * sizeof( double );
+        memcpy( Ivt, &data[N_bytes], n_Ivt * sizeof( double ) );
+        N_bytes += n_Ivt * sizeof( double );
     } else if ( compression == 1 ) {
         // The data was saved without zeros
         data_int        = (int *) &data[N_bytes];

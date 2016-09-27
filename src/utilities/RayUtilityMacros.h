@@ -9,7 +9,7 @@
 
 // Include AtomicModel::Utilities
 #ifdef USE_ATOMIC_MODEL
-#include "utilities/Utilities.h"
+#include "AtomicModel/utilities/Utilities.h"
 #else
 namespace AtomicModel {
 namespace Utilities {

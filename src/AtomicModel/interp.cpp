@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <string.h>
 
-#include "interp.h"
+#include "AtomicModel/interp.h"
 
 
 // Subroutine to perform linear interpolation
@@ -94,7 +94,8 @@ double interp::trilinear( double x, double y, double z, size_t Nx, size_t Ny, si
 
 
 // Subroutine to perform cubic hermite interpolation
-double interp::interp_pchip( size_t N, const double *xi, const double *yi, double x )
+template<class TYPE>
+static inline TYPE pchip( size_t N, const TYPE *xi, const TYPE *yi, TYPE x )
 {
     if ( x <= xi[0] || N <= 2 ) {
         double dx = ( x - xi[0] ) / ( xi[1] - xi[0] );
@@ -103,7 +104,7 @@ double interp::interp_pchip( size_t N, const double *xi, const double *yi, doubl
         double dx = ( x - xi[N - 2] ) / ( xi[N - 1] - xi[N - 2] );
         return ( 1.0 - dx ) * yi[N - 2] + dx * yi[N - 1];
     }
-    size_t i  = findfirstsingle( xi, N, x );
+    size_t i  = interp::findfirstsingle( xi, N, x );
     double f1 = yi[i - 1];
     double f2 = yi[i];
     double dx = ( x - xi[i - 1] ) / ( xi[i] - xi[i - 1] );
@@ -139,9 +140,16 @@ double interp::interp_pchip( size_t N, const double *xi, const double *yi, doubl
     }
     // Perform the interpolation
     double dx2 = dx * dx;
-    double f =
-        f1 + dx2 * ( 2 * dx - 3 ) * ( f1 - f2 ) + dx * g1 - dx2 * ( g1 + ( 1 - dx ) * ( g1 + g2 ) );
+    double f = f1 + dx2 * ( 2 * dx - 3 ) * ( f1 - f2 ) + dx * g1 - dx2 * ( g1 + ( 1 - dx ) * ( g1 + g2 ) );
     return f;
+}
+double interp::interp_pchip( size_t N, const double *xi, const double *yi, double x )
+{
+    return pchip( N, xi, yi, x );
+}
+float interp::interp_pchip( size_t N, const float *xi, const float *yi, float x )
+{
+    return pchip( N, xi, yi, x );
 }
 
 

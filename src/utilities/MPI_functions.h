@@ -76,7 +76,10 @@ inline int GATHER_ERROR( int error, MPI_Comm comm )
     return error;
 }
 #else
-inline int GATHER_ERROR( int error, MPI_Comm& ) { return error; }
+inline int GATHER_ERROR( int error, MPI_Comm )
+{
+    return error;
+}
 #endif
 
 

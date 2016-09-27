@@ -221,6 +221,7 @@ const RayTrace::ray_gain_struct* ray_gain_struct_copy_device_cuda( size_t N, con
         host_ptr[i].Nx = arr[i].Nx;
         host_ptr[i].Ny = arr[i].Ny;
         host_ptr[i].Nv = arr[i].Nv;
+        host_ptr[i].E0 = nullptr;
         cudaMalloc(&host_ptr[i].x,arr[i].Nx*sizeof(double));
         cudaMalloc(&host_ptr[i].y,arr[i].Ny*sizeof(double));
         cudaMalloc(&host_ptr[i].n,arr[i].Nx*arr[i].Ny*sizeof(double));
@@ -232,7 +233,8 @@ const RayTrace::ray_gain_struct* ray_gain_struct_copy_device_cuda( size_t N, con
         cudaMemcpy(host_ptr[i].y,arr[i].y,arr[i].Ny*sizeof(double),cudaMemcpyHostToDevice);
         cudaMemcpy(host_ptr[i].n,arr[i].n,arr[i].Nx*arr[i].Ny*sizeof(double),cudaMemcpyHostToDevice);
         cudaMemcpy(host_ptr[i].g0,arr[i].g0,arr[i].Nx*arr[i].Ny*sizeof(float),cudaMemcpyHostToDevice);
-        cudaMemcpy(host_ptr[i].E0,arr[i].E0,arr[i].Nx*arr[i].Ny*sizeof(float),cudaMemcpyHostToDevice);
+        if ( arr[i].E0 != nullptr )
+            cudaMemcpy(host_ptr[i].E0,arr[i].E0,arr[i].Nx*arr[i].Ny*sizeof(float),cudaMemcpyHostToDevice);
         cudaMemcpy(host_ptr[i].gv,arr[i].gv,arr[i].Nx*arr[i].Ny*arr[i].Nv*sizeof(float),cudaMemcpyHostToDevice);
         cudaMemcpy(host_ptr[i].gv0,arr[i].gv0,arr[i].Nx*arr[i].Ny*sizeof(float),cudaMemcpyHostToDevice);
     }

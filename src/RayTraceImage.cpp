@@ -11,7 +11,7 @@
 
 // AtomicModel includes
 #ifndef DISABLE_WRITE_FAILED_RAYS
-#include "file_utilities.h"
+#include "AtomicModel/file_utilities.h"
 #endif
 
 // RayTrace includes

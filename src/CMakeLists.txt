@@ -36,11 +36,6 @@ INCLUDE( "${RAYTRACE_SOURCE_DIR}/macros.cmake" )
 SET_COMPILER_FLAGS()
 
 
-# Link external projects
-INCLUDE( Find_TIMER.cmake )
-CONFIGURE_TIMER( 0 "" )
-
-
 # Enable OpenMP
 IF ( USE_OPENMP )
     ADD_DEFINITIONS( -DUSE_OPENMP )
@@ -161,7 +156,7 @@ ADD_DISTCLEAN( libRayTrace.* null_timer CreateImage* )
 # Create the library
 INCLUDE_DIRECTORIES( ${RAYTRACE_SOURCE_DIR} )
 ADD_DEFINITIONS( -DDISABLE_WRITE_FAILED_RAYS )
-SET( SOURCES RayTrace RayTraceImage.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp interp.cpp RayTraceImageCPU.cpp )
+SET( SOURCES RayTrace RayTraceImage.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp AtomicModel/interp.cpp RayTraceImageCPU.cpp )
 IF ( USE_OPENACC )
     SET( SOURCES ${SOURCES} RayTraceImageOpenACC.cpp )
 ENDIF()

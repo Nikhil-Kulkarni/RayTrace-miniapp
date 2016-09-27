@@ -1,6 +1,7 @@
 #ifndef included_interp
 #define included_interp
 
+#include <cstdlib>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,6 +144,19 @@ double interp_linear( size_t N, const double *xi, const double *yi, double x );
  * @param x         Point to be interpolated
  */
 double interp_pchip( size_t N, const double *xi, const double *yi, double x );
+
+
+/*!
+ * @brief    Subroutine to perform cubic hermite
+ * @details  This function returns f(x) interpolated between x1 and x2.
+ * It does so using a monotonic preserving piecewise cubic hermite polynomial.
+ * Ouside of the domain it will perform linear interpolation.
+ * @param N         Number of points in xi
+ * @param xi        Sorted grid to use for interpolation
+ * @param yi        Function values
+ * @param x         Point to be interpolated
+ */
+float interp_pchip( size_t N, const float *xi, const float *yi, float x );
 
 
 /*!
@@ -357,6 +371,88 @@ double bisection( std::function<double( double, Args... )>, double lb, double ub
  * @return              The next guess to use
  */
 double bisection_coeff( size_t N, const double *x, const double *r, double *range = NULL );
+
+
+#ifdef ENABLE_STD_FUNCTION
+
+/*!
+ * @brief    Function to perform numerical integration
+ * @details  This function numerically integrates the function on the interval [lb,ub]
+ *    using the midpoint.  This requires N function evaluations.
+ * @param fun       The function to integrate of the form y = f(x)
+ * @param range     The range to integrate
+ * @param N         Number of sub-intervals to use
+ */
+template <class T1, class T2>
+HOST_DEVICE inline T1 integrate_midpoint(
+    const std::function<T1( T2 )> &fun, const std::array<T2, 2> &range, int N );
+
+
+/*!
+ * @brief    Function to perform numerical integration
+ * @details  This function numerically integrates the function on the interval [lb,ub]
+ *    using Simpson's rule.  This requires N+1 function evaluations.
+ * @param fun       The function to integrate of the form y = f(x)
+ * @param range     The range to integrate
+ * @param N         Number of sub-intervals to use
+ */
+template <class T1, class T2>
+HOST_DEVICE inline T1 integrate_simpson(
+    const std::function<T1( T2 )> &fun, const std::array<T2, 2> &range, int N );
+
+
+/*!
+ * @brief    Function to perform numerical integration in 1D
+ * @details  This function numerically integrates the function on the interval [lb,ub]
+ *    using an adaptive Simpson's rule.  This requires N+1 function evaluations.
+ * @param[in] fun       The function to integrate of the form y = f(x)
+ * @param[in] range     The range to integrate
+ * @param[in] tol       Number of sub-intervals to use
+ * @param[in] N_eval    Total number of evalutations
+ * @param[in] norm      Function to compute the norm to use for the error
+ */
+template <class T1, class T2>
+HOST_DEVICE inline T1 integrate( const std::function<T1( T2 )> &fun, const std::array<T2, 2> &range,
+    const T2 tol = 1e-6, int *N_eval = NULL,
+    const std::function<T2( T1 )> &norm = []( T1 x ) { return x<0 ? -x:x; } );
+
+
+/*!
+ * @brief    Function to perform numerical integration in 2D
+ * @details  This function numerically integrates the function on the interval
+ * [x_min,x_max,y_min,y_max]
+ *    using an adaptive Simpson's rule.  This requires N+1 function evaluations (3 iterations for
+ * N=1).
+ * @param[in] fun       The function to integrate of the form y = f(x)
+ * @param[in] range     The range to integrate
+ * @param[in] tol       Number of sub-intervals to use
+ * @param[in] N_eval    Total number of evalutations
+ * @param[in] norm      Function to compute the norm to use for the error
+ */
+template <class T1, class T2>
+HOST_DEVICE inline T1 integrate( const std::function<T1( T2, T2 )> &fun,
+    const std::array<T2, 4> &range, const T2 tol = 1e-6, int *N_eval = NULL,
+    const std::function<T2( T1 )> &norm = []( T1 x ) { return x<0 ? -x:x; } );
+
+
+/*!
+ * @brief    Function to perform numerical integration in 3D
+ * @details  This function numerically integrates the function on the interval
+ * [x_min,x_max,y_min,y_max,z_min,z_max]
+ *    using an adaptive Simpson's rule.
+ * @param[in] fun       The function to integrate of the form y = f(x)
+ * @param[in] range     The range to integrate
+ * @param[in] tol       Number of sub-intervals to use
+ * @param[in] N_eval    Total number of evalutations
+ * @param[in] norm      Function to compute the norm to use for the error
+ */
+template <class T1, class T2>
+HOST_DEVICE inline T1 integrate( const std::function<T1( T2, T2, T2 )> &fun,
+    const std::array<T2, 6> &range, const T2 tol = 1e-6, int *N_eval = NULL,
+    const std::function<T2( T1 )> &norm = []( T1 x ) { return x<0 ? -x:x; } );
+
+
+#endif
 }
 
 #include "interp.hpp"

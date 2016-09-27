@@ -9,7 +9,7 @@
 
 // Atomic model utilities
 #ifdef USE_ATOMIC_MODEL
-#include "utilities/Utilities.h"
+#include "AtomicModel/utilities/Utilities.h"
 #else
 namespace AtomicModel {
 std::ostream &pout = std::cout;

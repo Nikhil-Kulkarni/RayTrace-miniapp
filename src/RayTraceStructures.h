@@ -11,8 +11,8 @@
 #include "utilities/MPI_functions.h"
 
 #ifdef USE_ATOMIC_MODEL
-#include "AtomicModel.h"
-#include "threadpool/thread_pool.h"
+#include "AtomicModel/AtomicModel.h"
+#include "AtomicModel/threadpool/thread_pool.h"
 #else
 #define ZMAX 92
 namespace AtomicModel {

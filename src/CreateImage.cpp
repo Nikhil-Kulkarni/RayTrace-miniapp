@@ -329,9 +329,9 @@ int main( int argc, char *argv[] )
         N_errors += run_tests( filenames[i], options );
 
     if ( N_errors == 0 )
-        std::cout << "All tests passed\n";
+        std::cout << "\nAll tests passed\n";
     else
-        std::cout << "Some tests failed\n";
+        std::cout << "\nSome tests failed\n";
 #ifdef USE_KOKKOS
     Kokkos::finalize();
 #endif

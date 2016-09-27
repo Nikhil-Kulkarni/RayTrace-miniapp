@@ -6,11 +6,6 @@
 #include <math.h>
 #include <stdint.h>
 
-// AtomicModel includes
-#ifndef DISABLE_WRITE_FAILED_RAYS
-#include "file_utilities.h"
-#endif
-
 // RayTrace includes
 #include "RayTrace.h"
 

@@ -1,7 +1,7 @@
 #ifndef included_interp_hpp
 #define included_interp_hpp
 
-#include "interp.h"
+#include "AtomicModel/interp.h"
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -560,5 +560,123 @@ HOST_DEVICE inline double interp::get_interp_ratio(
     return y;
 }
 
+
+#ifdef ENABLE_STD_FUNCTION
+
+
+// Integrate the function using the midpoints
+template <class T1, class T2>
+HOST_DEVICE inline T1 interp::integrate_midpoint(
+    const std::function<T1( T2 )> &f, const std::array<T2, 2> &range, int N )
+{
+    T2 dx = ( range[1] - range[0] ) / N;
+    T1 y  = 0;
+    for ( int i = 0; i < N; i++ )
+        y += f( range[0] + ( i + 0.5 ) * dx );
+    y *= dx;
+    return y;
+}
+
+
+// Integrate the function using Simpson's rule
+template <class T1, class T2>
+HOST_DEVICE inline T1 interp::integrate_simpson(
+    const std::function<T1( T2 )> &f, const std::array<T2, 2> &range, int N )
+{
+    if ( N <= 2 )
+        return ( range[1] - range[0] ) / 6 *
+               ( f( range[0] ) + 4 * f( ( range[0] + range[1] ) / 2 ) + f( range[1] ) );
+    if ( N % 2 != 0 )
+        throw std::logic_error( "Error: N must be even" );
+    T2 dx = ( range[1] - range[0] ) / N;
+    T1 y  = f( range[0] ) + f( range[1] ) + 4 * f( range[0] + dx );
+    for ( int i = 1; i < N / 2; i++ ) {
+        y += 2 * f( range[0] + 2 * i * dx );
+        y += 4 * f( range[0] + 2 * i * dx + dx );
+    }
+    y *= ( dx / 3 );
+    return y;
+}
+
+
+// Integrate the function using adaptive Simpson's rule
+template <class T1, class T2>
+HOST_DEVICE inline T1 adaptiveSimpsonsAux( const std::function<T1( T2 )> &fun, T2 a, T2 b, T2 tol,
+    T1 S, T1 fa, T1 fb, T1 fc, int bottom, int &N_eval, const std::function<T2( T1 )> &norm )
+{
+    T2 c = ( a + b ) / 2, h = b - a;
+    T2 d = ( a + c ) / 2, e = ( c + b ) / 2;
+    T1 fd = fun( d ), fe = fun( e );
+    T1 Sleft  = ( h / 12 ) * ( fa + 4 * fd + fc );
+    T1 Sright = ( h / 12 ) * ( fc + 4 * fe + fb );
+    T1 S2     = Sleft + Sright;
+    N_eval += 2;
+    T2 err = norm( S2 - S );
+    if ( bottom <= 0 || err <= 15 * tol ) // magic 15 comes from error analysis
+        return S2 + 0.066666666666667 * ( S2 - S );
+    return adaptiveSimpsonsAux<T1, T2>(
+               fun, a, c, tol / 2, Sleft, fa, fc, fd, bottom - 1, N_eval, norm ) +
+           adaptiveSimpsonsAux<T1, T2>(
+               fun, c, b, tol / 2, Sright, fc, fb, fe, bottom - 1, N_eval, norm );
+}
+template <class T1, class T2>
+HOST_DEVICE inline T1 interp::integrate( const std::function<T1( T2 )> &fun,
+    const std::array<T2, 2> &range, T2 tol, int *N_eval_out, const std::function<T2( T1 )> &norm )
+{
+    T2 h       = range[1] - range[0];
+    T1 fa      = fun( range[0] );
+    T1 fb      = fun( range[1] );
+    T1 fc      = fun( range[0] + 0.5 * h );
+    T1 S       = ( h / 6 ) * ( fa + 4 * fc + fb );
+    int N_eval = 2;
+    S          = adaptiveSimpsonsAux<T1, T2>(
+        fun, range[0], range[1], tol, S, fa, fb, fc, 100, N_eval, norm );
+    if ( N_eval_out != NULL )
+        *N_eval_out = N_eval;
+    return S;
+}
+template <class T1, class T2>
+HOST_DEVICE inline T1 interp::integrate( const std::function<T1( T2, T2 )> &fun,
+    const std::array<T2, 4> &range, T2 tol, int *N_eval_out, const std::function<T2( T1 )> &norm )
+{
+    std::array<T2, 2> range1 = { range[0], range[1] };
+    std::array<T2, 2> range2 = { range[2], range[3] };
+    int N_eval      = 0;
+    int *N_eval_ptr = &N_eval;
+    auto fun2       = [fun, range1, tol, N_eval_ptr, norm]( T2 y ) {
+        auto fun3 = [fun, y, N_eval_ptr]( T2 x ) {
+            ( *N_eval_ptr )++;
+            return fun( x, y );
+        };
+        return integrate<T1, T2>( fun3, range1, tol, NULL, norm );
+    };
+    auto S = integrate<T1, T2>( fun2, range2, tol, NULL, norm );
+    if ( N_eval_out != NULL )
+        *N_eval_out = N_eval;
+    return S;
+}
+template <class T1, class T2>
+HOST_DEVICE inline T1 interp::integrate( const std::function<T1( T2, T2, T2 )> &fun,
+    const std::array<T2, 6> &range, T2 tol, int *N_eval_out, const std::function<T2( T1 )> &norm )
+{
+    std::array<T2, 4> range1 = { range[0], range[1], range[2], range[3] };
+    std::array<T2, 2> range2 = { range[4], range[5] };
+    int N_eval      = 0;
+    int *N_eval_ptr = &N_eval;
+    auto fun2       = [fun, range1, tol, N_eval_ptr, norm]( T2 z ) {
+        auto fun3 = [fun, z, N_eval_ptr]( T2 x, T2 y ) {
+            ( *N_eval_ptr )++;
+            return fun( x, y, z );
+        };
+        return integrate<T1, T2>( fun3, range1, tol, NULL, norm );
+    };
+    auto S = integrate<T1, T2>( fun2, range2, tol, NULL, norm );
+    if ( N_eval_out != NULL )
+        *N_eval_out = N_eval;
+    return S;
+}
+
+
+#endif
 
 #endif
