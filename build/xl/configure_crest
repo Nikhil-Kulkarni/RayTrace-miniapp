@@ -1,15 +1,14 @@
-module unload clang gnu pgi xlf cuda kokkos cmake3
-module load cuda
+module unload clang gnu pgi xlf cuda kokkos cmake
 module load kokkos
-module load cmake3
+module load cmake
 
 
 rm -rf CMake*
 
 cmake                                   \
    -D CMAKE_BUILD_TYPE=Release          \
-   -D CMAKE_C_COMPILER=gcc              \
-   -D CMAKE_CXX_COMPILER=g++            \
+   -D CMAKE_C_COMPILER=xlc              \
+   -D CMAKE_CXX_COMPILER=xlc++          \
    -D CXX_STD=11                        \
    -D USE_OPENACC=0                     \
    -D USE_OPENMP=1                      \

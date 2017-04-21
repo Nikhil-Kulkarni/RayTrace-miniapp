@@ -9,5 +9,4 @@ build/install*
 build/interp*
 build/null_timer
 build/lib*
-build/pgi*
 

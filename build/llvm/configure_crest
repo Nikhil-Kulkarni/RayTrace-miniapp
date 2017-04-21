@@ -1,8 +1,8 @@
-module unload clang gnu pgi xlf cuda kokkos cmake3
+module unload clang gnu pgi xlf cuda kokkos cmake
 module load clang
 module load cuda
 module load kokkos
-module load cmake3
+module load cmake
 
 
 rm -rf CMake*
