@@ -36,6 +36,21 @@ INCLUDE( "${RAYTRACE_SOURCE_DIR}/macros.cmake" )
 SET_COMPILER_FLAGS()
 
 
+# Check if we are using an MPI compiler
+SET( CMAKE_REQUIRED_FLAGS ${CMAKE_CXX_FLAGS} )
+CHECK_CXX_SOURCE_COMPILES(
+    "#include <mpi.h>
+     int main(int, char**) {
+        MPI_Init(NULL, NULL);
+        MPI_Finalize();
+     }"
+    USE_MPI )
+IF ( USE_MPI )
+    ADD_DEFINITIONS( -DUSE_MPI )
+    MESSAGE( "Using MPI" )
+ENDIF()
+
+
 # Enable OpenMP
 IF ( USE_OPENMP )
     ADD_DEFINITIONS( -DUSE_OPENMP )
@@ -156,7 +171,7 @@ ADD_DISTCLEAN( libRayTrace.* null_timer CreateImage* )
 # Create the library
 INCLUDE_DIRECTORIES( ${RAYTRACE_SOURCE_DIR} )
 ADD_DEFINITIONS( -DDISABLE_WRITE_FAILED_RAYS )
-SET( SOURCES RayTrace RayTraceImage.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp AtomicModel/interp.cpp RayTraceImageCPU.cpp )
+SET( SOURCES RayTrace RayTraceImage.cpp RayTraceStructures.cpp utilities/RayUtilities.cpp AtomicModel/interp.cpp RayTraceImageCPU.cpp CreateImageHelpers.cpp )
 IF ( USE_OPENACC )
     SET( SOURCES ${SOURCES} RayTraceImageOpenACC.cpp )
 ENDIF()

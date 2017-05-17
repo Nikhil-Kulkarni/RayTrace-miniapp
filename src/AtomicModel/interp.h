@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #include "CompilerFeatures.h"
 #ifdef ENABLE_STD_FUNCTION
@@ -261,6 +262,15 @@ void quicksort( size_t n, type *X );
 
 /*!
  * @brief    Subroutine to sort the elements in X
+ * @details  This function sorts the values in X using quicksort
+ * @param X         Input/Output: Points to sort
+ */
+template <class type>
+inline void quicksort( std::vector<type>& X );
+
+
+/*!
+ * @brief    Subroutine to sort the elements in X
  * @details  This function sorts the values in X
  * @param n         The number of values in X
  * @param X         Input/Output: Points to sort
@@ -268,6 +278,17 @@ void quicksort( size_t n, type *X );
  */
 template <class type1, class type2>
 void quicksort( size_t n, type1 *X, type2 *Y );
+
+
+/*!
+ * @brief    Subroutine to sort the elements in X
+ * @details  This function sorts the values in X
+ * @param n         The number of values in X
+ * @param X         Input/Output: Points to sort
+ * @param Y         Input/Output: Extra values to be sorted with X
+ */
+template <class type1, class type2>
+inline void quicksort( std::vector<type1>& X, std::vector<type2>& Y );
 
 
 /*!
