@@ -467,64 +467,6 @@ private:
 };
 
 
-//! Structure used to identify recursion tree for calc_step
-struct tree_struct {
-    int level;      //!<  Current level of the tree
-    tree_struct *a; //!<  The first step of the recursion
-    tree_struct *b; //!<  The second step of the recursion
-    //! Constructor used to initialize key values
-    tree_struct();
-    //! De-constructor
-    ~tree_struct();
-    /*!
-     * This function converts the data structure (for a single length) to a byte array.
-     * It returns the byte array and number of bytes used.
-     */
-    std::pair<char *, size_t> pack() const;
-    //! This function converts a byte array to fill the data structure.
-    void unpack( std::pair<const char *, size_t> data );
-    //! Comparison operator
-    bool operator==( const tree_struct &rhs ) const;
-    //! operator!=
-    inline bool operator!=( const tree_struct &rhs ) const { return !( this->operator==( rhs ) ); }
-    //! Get the maximum depth of the tree
-    int depth() const;
-    //! Get the total number of nodes of the tree
-    int nodes() const;
-
-protected:
-    tree_struct( const tree_struct & );            // Private copy constructor
-    tree_struct &operator=( const tree_struct & ); // Private assignment operator
-};
-
-
-//! Structure used to contain information about the load balancing
-struct load_balance_struct {
-    bool sync_N_pop;    //!<  Do we want to syncronize N_ion and N_meta across all processors
-    int size;           //!<  The number of processors
-    int rank;           //!<  The rank of the current processor
-    int J;              //!<  The number of zones (should match plasma.J)
-    int *proc_zone;     //!<  Which processor is in charge of which zone (1xJ)
-    int N_start;        //!<  First ray to process (set to 0 for domain based decompoisition,
-                        //!<  otherwise set to a unique number for each thread)
-    int N_parallel;     //!<  Number of rays processed in parallel (set to 0 for domain based
-                        //! decompoisition, otherwise set to the number of threads)
-    MPI_Comm comm; //!< Communicator to use
-    //! Empty constructor
-    load_balance_struct();
-    //! Constructor used to initialize key values
-    explicit load_balance_struct( int J );
-    //! Destructor
-    ~load_balance_struct();
-    //! Check that the load balance data is valid
-    bool valid( int J, int rad_type, const bool *ii ) const;
-
-protected:
-    load_balance_struct( const load_balance_struct & );            // Private copy constructor
-    load_balance_struct &operator=( const load_balance_struct & ); // Private assignment operator
-};
-
-
 // Structure to contain extra information for byte arrays (helps to allow for future versions)
 struct byte_array_header {
     unsigned char id;          // Special number to determine if the header was used
