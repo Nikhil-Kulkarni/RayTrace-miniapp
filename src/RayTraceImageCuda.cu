@@ -142,9 +142,7 @@ inline dim3 calcBlockSize( size_t N_blocks )
 
 
 // Create the image and call the cuda kernel
-void RayTraceImageCudaLoop( int N, int nx, int ny, int na, int nb, int nv, 
-    const double *x, const double *y, const double *a, const double *b,
-    double dx, double dy, double dz, double da, double db, const double *dv,
+void RayTraceImageCudaLoop( int N, const RayTrace::EUV_beam_struct& beam,
     const RayTrace::ray_gain_struct* gain_in, const RayTrace::ray_seed_struct* seed_in,
     int method, const std::vector<ray_struct>& rays, double scale,
     double *image, double *I_ang, 
@@ -161,6 +159,16 @@ void RayTraceImageCudaLoop( int N, int nx, int ny, int na, int nb, int nv,
         //CUDA_PRINT_FUNCTION(RayTraceImageCudaKernel);
     }    
     // place the ray gain and seed structures on the device
+    const int nx = beam.nx;
+    const int ny = beam.ny;
+    const int na = beam.na;
+    const int nb = beam.nb;
+    const int nv = beam.nv;
+    const double dx = beam.dx;
+    const double dy = beam.dy;
+    const double dz = beam.dz;
+    const double da = beam.da;
+    const double db = beam.db;
     const RayTrace::ray_gain_struct* gain = RayTrace::ray_gain_struct::copy_device( N, gain_in );
     const RayTrace::ray_seed_struct* seed = NULL;
     if ( seed_in!=NULL )
@@ -177,11 +185,11 @@ void RayTraceImageCudaLoop( int N, int nx, int ny, int na, int nb, int nv,
     cudaMalloc(&image2,nx*ny*nv*sizeof(double));
     cudaMalloc(&I_ang2,na*nb*sizeof(double));
     cudaMalloc(&rays2,N_rays*sizeof(ray_struct));
-    cudaMemcpy(x2,x,nx*sizeof(double),cudaMemcpyHostToDevice);
-    cudaMemcpy(y2,y,ny*sizeof(double),cudaMemcpyHostToDevice);
-    cudaMemcpy(a2,a,na*sizeof(double),cudaMemcpyHostToDevice);
-    cudaMemcpy(b2,b,nb*sizeof(double),cudaMemcpyHostToDevice);
-    cudaMemcpy(dv2,dv,nv*sizeof(double),cudaMemcpyHostToDevice);
+    cudaMemcpy(x2,beam.x,nx*sizeof(double),cudaMemcpyHostToDevice);
+    cudaMemcpy(y2,beam.y,ny*sizeof(double),cudaMemcpyHostToDevice);
+    cudaMemcpy(a2,beam.a,na*sizeof(double),cudaMemcpyHostToDevice);
+    cudaMemcpy(b2,beam.b,nb*sizeof(double),cudaMemcpyHostToDevice);
+    cudaMemcpy(dv2,beam.dv,nv*sizeof(double),cudaMemcpyHostToDevice);
     cudaMemcpy(rays2,&rays[0],N_rays*sizeof(ray_struct),cudaMemcpyHostToDevice);
     cudaMemset(image2,0,nx*ny*nv*sizeof(double));
     cudaMemset(I_ang2,0,na*nb*sizeof(double));

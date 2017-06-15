@@ -6,6 +6,10 @@
 #include <math.h>
 #include <stdint.h>
 
+#if CXX_STD == 11 || CXX_STD == 14
+    #include <thread>
+#endif
+
 // Timer include
 #include "ProfilerApp.h"
 
@@ -35,58 +39,103 @@
 #define ENABLE_OPENMP
 #undef USE_OPENMP
 #endif
+#ifdef ENABLE_CUDA
+#include <cuda_runtime_api.h>
+#endif
 #include "common/RayTraceImageHelper.h"
 #include "utilities/RayUtilityMacros.h"
 
 
 // Define the external loop interfaces
-extern void RayTraceImageCPULoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
-    double db, const double *dv, const RayTrace::ray_gain_struct *gain,
+extern void RayTraceImageCPULoop( int N, const RayTrace::EUV_beam_struct& euv_beam, const RayTrace::ray_gain_struct *gain,
     const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays );
 #if defined( ENABLE_OPENMP )
-extern void RayTraceImageOpenMPLoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
-    double db, const double *dv, const RayTrace::ray_gain_struct *gain,
-    const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
-    double scale, double *image, double *I_ang, unsigned int &failure_code,
-    std::vector<ray_struct> &failed_rays );
-#endif
-#if CXX_STD == 11 || CXX_STD == 14
-extern void RayTraceImageThreadLoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
-    double db, const double *dv, const RayTrace::ray_gain_struct *gain,
+extern void RayTraceImageOpenMPLoop( int N, const RayTrace::EUV_beam_struct& euv_beam, const RayTrace::ray_gain_struct *gain,
     const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays );
 #endif
 #if defined( ENABLE_OPENACC )
-extern void RayTraceImageOpenAccLoop( int N, int nx, int ny, int na, int nb, int nv,
-    const double *x, const double *y, const double *a, const double *b, double dx, double dy,
-    double dz, double da, double db, const double *dv, const RayTrace::ray_gain_struct *gain,
+extern void RayTraceImageOpenAccLoop( int N, const RayTrace::EUV_beam_struct& euv_beam, const RayTrace::ray_gain_struct *gain,
     const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays );
 #endif
 #if defined( ENABLE_KOKKOS )
 #include "kokkos/RayTraceImageKokkos.hpp"
-/*extern void RayTraceImageKokkosLoop( int N, int nx, int ny, int na, int nb, int nv,
-    const double *x, const double *y, const double *a, const double *b,
-    double dx, double dy, double dz, double da, double db, const double *dv,
-    const RayTrace::ray_gain_struct* gain, const RayTrace::ray_seed_struct* seed,
-    int method, const std::vector<ray_struct>& rays,  double scale,
-    double *image, double *I_ang,
-    unsigned int& failure_code, std::vector<ray_struct>& failed_rays );*/
+/*extern void RayTraceImageKokkosLoop( int N, const RayTrace::EUV_beam_struct& euv_beam, const RayTrace::ray_gain_struct *gain,
+    const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
+    double scale, double *image, double *I_ang, unsigned int &failure_code,
+    std::vector<ray_struct> &failed_rays );*/
 #endif
 #if defined( ENABLE_CUDA )
-extern void RayTraceImageCudaLoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
-    double db, const double *dv, const RayTrace::ray_gain_struct *gain,
+extern void RayTraceImageCudaLoop( int N, const RayTrace::EUV_beam_struct& euv_beam, const RayTrace::ray_gain_struct *gain,
     const RayTrace::ray_seed_struct *seed, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays );
+#endif
+
+
+
+/**********************************************************************
+* Call RayTraceImage function from a thread loop                      *
+**********************************************************************/
+void setGPU( int id )
+{
+    NULL_USE(id);
+#if defined( ENABLE_CUDA )
+    cudaSetDevice(id);
+#endif
+}
+#if CXX_STD == 11 || CXX_STD == 14
+void RayTraceImageThreadLoop( size_t N_threads, 
+    std::function<void( int, const RayTrace::EUV_beam_struct&,
+        const RayTrace::ray_gain_struct*, const RayTrace::ray_seed_struct*,
+        int, const std::vector<ray_struct>&, double, double*,
+        double*, unsigned int&, std::vector<ray_struct>& )> function,
+    std::function<void( int )> setID,
+    int N, const RayTrace::EUV_beam_struct& beam,
+    const RayTrace::ray_gain_struct *gain, const RayTrace::ray_seed_struct *seed,
+    int method, const std::vector<ray_struct> &rays, double scale, double *image,
+    double *I_ang, unsigned int &failure_code, std::vector<ray_struct> &failed_rays )
+{
+    std::vector<std::vector<ray_struct>> rays2( N_threads );
+    std::vector<std::vector<ray_struct>> failed_rays2( N_threads );
+    std::vector<unsigned int> failure_code2( N_threads, 0 );
+    std::vector<double *> image2( N_threads, NULL );
+    std::vector<double *> I_ang2( N_threads, NULL );
+    std::vector<std::thread> threads;
+    for ( size_t i = 0, j = 0; i < N_threads; i++ ) {
+        size_t N2 = rays.size() / N_threads + 1;
+        if ( N2 == 0 ) {
+            N2 = 8;
+        }
+        rays2.reserve( N2 );
+        for ( size_t k = 0; k < N2 && j < rays.size(); k++, j++ )
+            rays2[i].push_back( rays[j] );
+        image2[i] = (double *) calloc( beam.nx * beam.ny * beam.nv, sizeof( double ) );
+        I_ang2[i] = (double *) calloc( beam.na * beam.nb, sizeof( double ) );
+        setID( i );
+        threads.push_back( std::thread( function, N, std::ref(beam),
+            gain, seed, method, std::ref( rays2[i] ), scale, image2[i],
+            I_ang2[i], std::ref( failure_code2[i] ), std::ref( failed_rays2[i] ) ) );
+    }
+    for ( size_t i = 0; i < N_threads; i++ ) {
+        threads[i].join();
+        for ( int j = 0; j < beam.nx * beam.ny * beam.nv; j++ )
+            image[j] += image2[i][j];
+        for ( int j = 0; j < beam.na * beam.nb; j++ )
+            I_ang[j] += I_ang2[i][j];
+        failure_code = failure_code | failure_code2[i];
+        for ( size_t j = 0; j < failed_rays2[i].size(); j++ )
+            failed_rays.push_back( failed_rays2[i][j] );
+        free( image2[i] );
+        free( I_ang2[i] );
+        rays2[i].clear();
+    }
+}
 #endif
 
 
@@ -195,27 +244,15 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
     const int na     = info->euv_beam->na;
     const int nb     = info->euv_beam->nb;
     const int nv     = info->euv_beam->nv;
-    const double *x  = info->euv_beam->x;
-    const double *y  = info->euv_beam->y;
-    const double *a  = info->euv_beam->a;
-    const double *b  = info->euv_beam->b;
-    const double dx  = info->euv_beam->dx;
-    const double dy  = info->euv_beam->dy;
-    const double dz  = info->dz;
-    const double da  = info->euv_beam->da;
-    const double db  = info->euv_beam->db;
-    const double *dv = info->euv_beam->dv;
 
     // Check the euv_beam grid
     bool grid_error = false;
-    grid_error      = grid_error || check_grid( nx, dx, x );
-    grid_error      = grid_error || check_grid( ny, dy, y );
-    grid_error      = grid_error || check_grid( na, da, a );
-    grid_error      = grid_error || check_grid( nb, db, b );
+    grid_error      = grid_error || check_grid( info->euv_beam->nx, info->euv_beam->dx, info->euv_beam->x );
+    grid_error      = grid_error || check_grid( info->euv_beam->ny, info->euv_beam->dy, info->euv_beam->y );
+    grid_error      = grid_error || check_grid( info->euv_beam->na, info->euv_beam->da, info->euv_beam->a );
+    grid_error      = grid_error || check_grid( info->euv_beam->nb, info->euv_beam->db, info->euv_beam->b );
     if ( grid_error )
         RAY_ERROR( "Only uniform grid spacings are currently supported (euv_beam)" );
-    if ( dz != info->euv_beam->dz )
-        RAY_ERROR( "info.dz != euv_beam.dz" );
 
     // Check the seed_beam grid
     if ( info->seed_beam != NULL ) {
@@ -258,7 +295,7 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
         double seed_dy = info->seed_beam->dy;
         double seed_da = info->seed_beam->da;
         double seed_db = info->seed_beam->db;
-        scale          = ( seed_dx * seed_dy * seed_da * seed_db ) / ( dx * dy );
+        scale          = ( seed_dx * seed_dy * seed_da * seed_db ) / ( info->euv_beam->dx * info->euv_beam->dy );
         timer_name     = "propagate_seed";
     } else {
         method     = 1;
@@ -282,10 +319,10 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
         // Create ray information
         ray_struct ray;
         if ( info->seed_beam == NULL ) {
-            ray.x = (float) x[i];
-            ray.y = (float) y[j];
-            ray.a = (float) a[k];
-            ray.b = (float) b[m];
+            ray.x = (float) info->euv_beam->x[i];
+            ray.y = (float) info->euv_beam->y[j];
+            ray.a = (float) info->euv_beam->a[k];
+            ray.b = (float) info->euv_beam->b[m];
         } else {
             ray.x = (float) info->seed_beam->x[i];
             ray.y = (float) info->seed_beam->y[j];
@@ -317,38 +354,34 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
     PROFILE_START( timer_name );
     if ( compute_method == "openacc" ) {
 #if defined( ENABLE_OPENACC )
-        RayTraceImageOpenAccLoop( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz, da, db, dv,
-            info->gain, info->seed, method, rays, scale, image, I_ang, failure_code, failed_rays );
+        RayTraceImageOpenAccLoop( N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
         RAY_ERROR( "OpenAcc is not availible" );
 #endif
     } else if ( compute_method.substr( 0, 7 ) == "kokkos-" ) {
 #if defined( ENABLE_KOKKOS )
         if ( compute_method == "kokkos-serial" ) {
-            RayTraceImageKokkosLoop<Kokkos::Serial>( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz,
-                da, db, dv, info->gain, info->seed, method, rays, scale, image, I_ang, failure_code,
-                failed_rays );
+            RayTraceImageKokkosLoop<Kokkos::Serial>( N, std::ref(*info->euv_beam), info->gain, info->seed,
+                method, rays, scale, image, I_ang, failure_code, failed_rays );
         } else if ( compute_method == "kokkos-openmp" ) {
 #ifdef KOKKOS_HAVE_OPENMP
-            RayTraceImageKokkosLoop<Kokkos::OpenMP>( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz,
-                da, db, dv, info->gain, info->seed, method, rays, scale, image, I_ang, failure_code,
-                failed_rays );
+            RayTraceImageKokkosLoop<Kokkos::OpenMP>( N, std::ref(*info->euv_beam), info->gain, info->seed,
+                method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
             RAY_ERROR( "Kokkos compiled without OpenMP" );
 #endif
         } else if ( compute_method == "kokkos-thread" ) {
 #ifdef KOKKOS_HAVE_PTHREAD
-            RayTraceImageKokkosLoop<Kokkos::Threads>( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz,
-                da, db, dv, info->gain, info->seed, method, rays, scale, image, I_ang, failure_code,
-                failed_rays );
+            RayTraceImageKokkosLoop<Kokkos::Threads>( N, std::ref(*info->euv_beam), info->gain, info->seed,
+                method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
             RAY_ERROR( "Kokkos compiled without pthreads" );
 #endif
         } else if ( compute_method == "kokkos-cuda" ) {
 #ifdef KOKKOS_HAVE_CUDA
-            RayTraceImageKokkosLoop<Kokkos::Cuda>( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz,
-                da, db, dv, info->gain, info->seed, method, rays, scale, image, I_ang, failure_code,
-                failed_rays );
+            RayTraceImageKokkosLoop<Kokkos::Cuda>( N, std::ref(*info->euv_beam), info->gain, info->seed,
+                method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
             RAY_ERROR( "Kokkos compiled without cuda" );
 #endif
@@ -360,25 +393,37 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
 #endif
     } else if ( compute_method == "cuda" ) {
 #if defined( ENABLE_CUDA )
-        RayTraceImageCudaLoop( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz, da, db, dv,
-            info->gain, info->seed, method, rays, scale, image, I_ang, failure_code, failed_rays );
+        RayTraceImageCudaLoop( N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
         RAY_ERROR( "Cuda is not availible" );
 #endif
+    } else if ( compute_method == "cuda-multigpu" ) {
+#if defined( ENABLE_CUDA )
+        int N_gpu;
+        cudaGetDeviceCount( &N_gpu );
+        RayTraceImageThreadLoop( N_gpu, RayTraceImageCudaLoop, setGPU,
+            N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
+#else
+        RAY_ERROR( "Cuda-MultiGPU is not availible" );
+#endif
     } else if ( compute_method == "cpu" ) {
-        RayTraceImageCPULoop( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz, da, db, dv, info->gain,
-            info->seed, method, rays, scale, image, I_ang, failure_code, failed_rays );
+        RayTraceImageCPULoop( N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
     } else if ( compute_method == "threads" ) {
 #if CXX_STD == 11 || CXX_STD == 14
-        RayTraceImageThreadLoop( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz, da, db, dv,
-            info->gain, info->seed, method, rays, scale, image, I_ang, failure_code, failed_rays );
+        size_t N_threads = std::thread::hardware_concurrency();
+        RayTraceImageThreadLoop( N_threads, RayTraceImageCPULoop, [](int) {},
+            N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
         RAY_ERROR( "Threaded version requires C++11" );
 #endif
     } else if ( compute_method == "openmp" ) {
 #if defined( ENABLE_OPENMP )
-        RayTraceImageOpenMPLoop( N, nx, ny, na, nb, nv, x, y, a, b, dx, dy, dz, da, db, dv,
-            info->gain, info->seed, method, rays, scale, image, I_ang, failure_code, failed_rays );
+        RayTraceImageOpenMPLoop( N, std::ref(*info->euv_beam), info->gain, info->seed,
+            method, rays, scale, image, I_ang, failure_code, failed_rays );
 #else
         RAY_ERROR( "OpenMP is not availible" );
 #endif
@@ -389,7 +434,7 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
 
     // Save failed rays
     if ( failure_code != 0 ) {
-        write_failures( failure_code, failed_rays, method, N, dz, info->gain );
+        write_failures( failure_code, failed_rays, method, N, info->euv_beam->dz, info->gain );
         RAY_ERROR( "Some rays failed" );
     }
 

@@ -207,11 +207,22 @@ double interp::bisection_coeff(
 {
     if ( N < 2 )
         throw std::logic_error( "Error: N<2" );
-    // Copy and sort x,r by r
+    // Copy x and r
     double *x = new double[N];
     double *r = new double[N];
     memcpy( x, x_in, N * sizeof( double ) );
     memcpy( r, r_in, N * sizeof( double ) );
+    // Change the sign or r such that min(x) will be at the beginning
+    auto tmp = std::make_pair( x[0], r[0] );
+    for (size_t i=0; i<N; i++) {
+        if ( x[i] < tmp.first )
+            tmp = std::make_pair( x[i], r[i] );
+    }
+    if ( tmp.second > 0 ) {
+        for (size_t i=0; i<N; i++)
+            r[i] = -r[i];
+    }
+    // Sort x and r
     quicksort( N, r, x );
     // Check that we have two signs for r
     if ( r[0] > 0.0 || r[N - 1] < 0.0 ) {
@@ -219,17 +230,21 @@ double interp::bisection_coeff(
         delete[] r;
         throw std::logic_error( "r does not have two different signs" );
     }
-    // Find r > 0
-    size_t i        = findfirstsingle( r, N, 0.0 );
-    double range[2] = { std::min( x[i - 1], x[i] ), std::max( x[i - 1], x[i] ) };
-    double y        = 0;
+    // Find r >= 0
+    size_t index = findfirstsingle( r, N, 0.0 );
+    double range[2] = { x[index-1], x[index] };
+    for (size_t i=0; i<index; i++)
+        range[0] = std::max( range[0], x[i] );
+    for (size_t i=index; i<N; i++)
+        range[1] = std::min( range[1], x[i] );
+    double y = 0;
     if ( N < 5 ) {
         // Use simple bisection for the first couple of iterations
         y = 0.5 * ( range[0] + range[1] );
-    } else if ( i == 1 || i == N - 1 ) {
+    } else if ( index == 1 || index == N - 1 ) {
         // We are at the boundary which reduces the gradient that we can use
         // Use an uneven bisection to try an ensure we have 2 points on each side
-        if ( i == 1 ) {
+        if ( index == 1 ) {
             y = 0.8 * x[0] + 0.2 * x[1];
         } else {
             y = 0.2 * x[N - 2] + 0.8 * x[N - 1];
@@ -245,7 +260,7 @@ double interp::bisection_coeff(
     // Finished
     delete[] x;
     delete[] r;
-    if ( range_out != NULL ) {
+    if ( range_out != nullptr ) {
         range_out[0] = range[0];
         range_out[1] = range[1];
     }

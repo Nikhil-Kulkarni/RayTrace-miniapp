@@ -2,6 +2,8 @@
 #include "utilities/MPI_functions.h"
 #include "utilities/RayUtilities.h"
 
+#include "ProfilerApp.h"
+
 #include <math.h>
 #include <algorithm>
 #include <assert.h>
@@ -86,36 +88,6 @@ inline bool approx_equal( size_t N, const double *x, const double *y, double tol
 }
 
 
-// Structure to contain extra information for byte arrays (helps to allow for future versions)
-struct byte_array_header {
-    unsigned char id;          // Special number to determine if the header was used
-    unsigned char size_int;    // Number of bytes of an int
-    unsigned char size_double; // Number of bytes of a double
-    unsigned char version;     // Version number of byte arrays
-    unsigned char type;        // Data type that will follow
-                               //    0: unknown, 1: plasma, 2: euv_beam, 3: seed_beam
-                               //    4: gain, 5: intensity, 6: seed_beam_shape
-    unsigned char unused[2];   // Future fields
-    unsigned char N_bytes[5];  // Number of bytes in byte array (maximum 2^40 bytes or 1 TB)
-    unsigned char flags[4];    // Special flags to be determined by the conversion function
-    byte_array_header()
-    {
-        id = 237; // DO NOT MODIFY!!!
-        RAY_ASSERT( sizeof( byte_array_header ) == 16 );
-        size_int    = sizeof( int );
-        size_double = sizeof( double );
-        version     = 0;
-        type        = 0;
-        for ( int i   = 0; i < 2; i++ )
-            unused[i] = 0;
-        for ( int i    = 0; i < 5; i++ )
-            N_bytes[i] = 0;
-        for ( int i  = 0; i < 4; i++ )
-            flags[i] = 0;
-    }
-};
-
-
 // Helper function to pack a value to a char array and increment N_bytes
 template <class TYPE>
 inline void pack_buffer( TYPE value, size_t &N_bytes, char *data )
@@ -143,7 +115,22 @@ inline TYPE unpack_buffer( size_t &N_bytes, const char *data )
 *    data  - Input:  Pointer to the byte array                        *
 *    data2 - Output: Pointer to byte array starting after the header  *
 **********************************************************************/
-byte_array_header load_byte_header( const char *data, char **data2 )
+RayTrace::byte_array_header::byte_array_header()
+{
+    id = 237; // DO NOT MODIFY!!!
+    RAY_ASSERT( sizeof( byte_array_header ) == 16 );
+    size_int    = sizeof( int );
+    size_double = sizeof( double );
+    version     = 0;
+    type        = 0;
+    for ( int i   = 0; i < 2; i++ )
+        unused[i] = 0;
+    for ( int i    = 0; i < 5; i++ )
+        N_bytes[i] = 0;
+    for ( int i  = 0; i < 4; i++ )
+        flags[i] = 0;
+}
+RayTrace::byte_array_header RayTrace::load_byte_header( const char *data, char **data2 )
 {
     RAY_ASSERT( sizeof( byte_array_header ) == 16 );
     byte_array_header head;
@@ -162,7 +149,7 @@ byte_array_header load_byte_header( const char *data, char **data2 )
     return head;
 }
 // Function to set N_bytes in the byte_array_header
-void set_N_bytes( byte_array_header *head, size_t N_bytes )
+void RayTrace::set_N_bytes( byte_array_header *head, size_t N_bytes )
 {
     RAY_ASSERT( N_bytes < 1099511627776 );
     if ( sizeof( unsigned int ) == 4 ) {
@@ -175,7 +162,7 @@ void set_N_bytes( byte_array_header *head, size_t N_bytes )
     }
 }
 // Function to read N_bytes in the byte_array_header
-size_t read_N_bytes( const byte_array_header &head )
+size_t RayTrace::read_N_bytes( const byte_array_header &head )
 {
     size_t N_bytes = 0;
     N_bytes        = head.N_bytes[0];
@@ -192,7 +179,7 @@ size_t read_N_bytes( const byte_array_header &head )
 }
 // Function to check that N_bytes in the byte_array_header matches the provided number
 // Note: we only started being careful about this in version 2 or greater
-void check_N_bytes( const byte_array_header &head, size_t N_bytes )
+void RayTrace::check_N_bytes( const byte_array_header &head, size_t N_bytes )
 {
     size_t N_bytes_head = read_N_bytes( head );
     if ( N_bytes != N_bytes_head && N_bytes_head != 0 && head.version >= 2 ) {
@@ -202,722 +189,6 @@ void check_N_bytes( const byte_array_header &head, size_t N_bytes )
             "   N_bytes_read = %i, N_bytes_header = %i\n", (int) N_bytes, (int) N_bytes_head );
         RAY_ERROR( message );
     }
-}
-
-
-/******************************************************************
-* Constructors/Destructors for plasma_struct                      *
-******************************************************************/
-RayTrace::plasma_struct::plasma_struct()
-{
-    data_type = 0;
-    N         = 0;
-    J         = 0;
-    T         = NULL;
-    x         = NULL;
-    y         = NULL;
-    Te        = NULL;
-    Ti        = NULL;
-    Ne        = NULL;
-    Ni        = NULL;
-    R         = NULL;
-    rad_type  = 0;
-    u         = NULL;
-    du_dz     = NULL;
-    dz_rad    = NULL;
-}
-#ifdef ENABLE_MOVE_CONSTRUCTOR
-RayTrace::plasma_struct::plasma_struct( plasma_struct &&rhs ) : plasma_struct() { swap( rhs ); }
-RayTrace::plasma_struct &RayTrace::plasma_struct::operator=( plasma_struct &&rhs )
-{
-    swap( rhs );
-    return *this;
-}
-#endif
-RayTrace::plasma_struct::~plasma_struct() { delete_data(); }
-void RayTrace::plasma_struct::initialize( int N_in, int J_in, int data_type_in, int rad_type_in )
-{
-    // Delete existing data
-    delete_data();
-    // Intialize the variables
-    N         = N_in;
-    J         = J_in;
-    data_type = data_type_in;
-    rad_type  = rad_type_in;
-    T         = new double[N];
-    x         = new double[N * J];
-    y         = new double[N * J];
-    Te        = new double[N * J];
-    Ti        = new double[N * J];
-    Ne        = new double[N * J];
-    Ni        = new double[N * J];
-    u         = new double[N * J];
-    du_dz     = new double[N * J];
-    dz_rad    = new double[N * J];
-    memset( (void *) T, 0, N * sizeof( double ) );
-    memset( (void *) x, 0, N * J * sizeof( double ) );
-    memset( (void *) y, 0, N * J * sizeof( double ) );
-    memset( (void *) Te, 0, N * J * sizeof( double ) );
-    memset( (void *) Ti, 0, N * J * sizeof( double ) );
-    memset( (void *) Ne, 0, N * J * sizeof( double ) );
-    memset( (void *) Ni, 0, N * J * sizeof( double ) );
-    memset( (void *) u, 0, N * J * sizeof( double ) );
-    memset( (void *) du_dz, 0, N * J * sizeof( double ) );
-    memset( (void *) dz_rad, 0, N * J * sizeof( double ) );
-    R = NULL;
-    if ( data_type == 1 ) {
-        R = new double[N * J];
-        memset( (void *) R, 0, N * J * sizeof( double ) );
-    }
-}
-void RayTrace::plasma_struct::swap( RayTrace::plasma_struct &rhs )
-{
-    std::swap( data_type, rhs.data_type );
-    std::swap( N, rhs.N );
-    std::swap( J, rhs.J );
-    std::swap( T, rhs.T );
-    std::swap( x, rhs.x );
-    std::swap( y, rhs.y );
-    std::swap( Te, rhs.Te );
-    std::swap( Ti, rhs.Ti );
-    std::swap( Ne, rhs.Ne );
-    std::swap( Ni, rhs.Ni );
-    std::swap( R, rhs.R );
-    std::swap( u, rhs.u );
-    std::swap( rad_type, rhs.rad_type );
-    std::swap( du_dz, rhs.du_dz );
-    std::swap( dz_rad, rhs.dz_rad );
-}
-void RayTrace::plasma_struct::delete_data()
-{
-    N = 0;
-    delete[] T;
-    T = NULL;
-    delete[] x;
-    x = NULL;
-    delete[] y;
-    y = NULL;
-    delete[] Te;
-    Te = NULL;
-    delete[] Ti;
-    Ti = NULL;
-    delete[] Ne;
-    Ne = NULL;
-    delete[] Ni;
-    Ni = NULL;
-    delete[] R;
-    R = NULL;
-    delete[] u;
-    u = NULL;
-    delete[] du_dz;
-    du_dz = NULL;
-    delete[] dz_rad;
-    dz_rad = NULL;
-}
-bool RayTrace::plasma_struct::valid() const
-{
-    bool is_valid = true;
-    if ( data_type == 1 )
-        for ( int i = 0; i < N; i++ ) {
-            if ( T[i] != T[i] ) {
-                is_valid = false;
-            }
-        }
-    if ( data_type == 1 ) {
-        for ( int i = 0; i < N * J; i++ ) {
-            if ( x[i] != x[i] ) {
-                is_valid = false;
-            }
-        }
-    } else {
-        for ( int i = 0; i < N * J; i++ ) {
-            if ( x[i] == x[i] && y[i] != y[i] )
-                is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( x[i] == x[i] && Te[i] != Te[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( x[i] == x[i] && Ti[i] != Ti[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( x[i] == x[i] && Ne[i] != Ne[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( x[i] == x[i] && Ni[i] != Ni[i] ) {
-            is_valid = false;
-        }
-    }
-    if ( data_type == 1 ) {
-        for ( int i = 0; i < N * J; i++ ) {
-            if ( R[i] != R[i] ) {
-                is_valid = false;
-            }
-        }
-    }
-    return is_valid;
-}
-bool RayTrace::plasma_struct::operator==( const RayTrace::plasma_struct &rhs ) const
-{
-    if ( N != rhs.N || J != rhs.J || data_type != rhs.data_type || rad_type != rhs.rad_type )
-        return false;
-    bool equal = true;
-    equal      = equal && approx_equal( N, T, rhs.T );
-    equal      = equal && approx_equal( N * J, x, rhs.x );
-    if ( data_type != 1 )
-        equal = equal && approx_equal( N * J, y, rhs.y );
-    equal     = equal && approx_equal( N * J, Te, rhs.Te );
-    equal     = equal && approx_equal( N * J, Ti, rhs.Ti );
-    equal     = equal && approx_equal( N * J, Ne, rhs.Ne );
-    equal     = equal && approx_equal( N * J, Ni, rhs.Ni );
-    equal     = equal && approx_equal( N * J, u, rhs.u );
-    equal     = equal && approx_equal( N * J, du_dz, rhs.du_dz );
-    equal     = equal && approx_equal( N * J, dz_rad, rhs.dz_rad );
-    if ( data_type == 1 )
-        equal = equal && approx_equal( N * J, R, rhs.R );
-    return equal;
-}
-
-
-/**********************************************************************
-* Function to convert plasma data to a byte array                     *
-**********************************************************************/
-std::pair<char *, size_t> RayTrace::plasma_struct::pack( int compression ) const
-{
-    // Check the inputs
-    if ( compression < 0 || compression > 2 ) {
-        perr << "Unknown or unsupported compression type\n";
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    }
-    if ( data_type != 1 && data_type != 2 ) {
-        perr << "Unknown data_type\n";
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    }
-    // Create a temporary array which contains the data as a single array
-    size_t N_bytes;
-    unsigned int size_tmp = N;
-    if ( data_type == 1 )
-        size_tmp += 10 * N * J;
-    else if ( data_type == 2 )
-        size_tmp += 9 * N * J;
-    double *double_tmp = new double[size_tmp];
-    // Save T
-    size_t Ns = 0;
-    for ( int i            = 0; i < N; i++ )
-        double_tmp[Ns + i] = T[i];
-    Ns += N;
-    // Save x
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = x[i];
-    Ns += N * J;
-    // Save y
-    if ( data_type == 1 ) {
-        for ( int i            = 0; i < N * J; i++ )
-            double_tmp[Ns + i] = 0.0;
-    } else {
-        for ( int i            = 0; i < N * J; i++ )
-            double_tmp[Ns + i] = y[i];
-    }
-    Ns += N * J;
-    // Save Te
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = Te[i];
-    Ns += N * J;
-    // Save Ti
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = Ti[i];
-    Ns += N * J;
-    // Save Ne
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = Ne[i];
-    Ns += N * J;
-    // Save Ni
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = Ni[i];
-    Ns += N * J;
-    // Save R
-    if ( data_type == 1 ) {
-        for ( int i            = 0; i < N * J; i++ )
-            double_tmp[Ns + i] = R[i];
-        Ns += N * J;
-    }
-    // Save u
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = u[i];
-    Ns += N * J;
-    // Save du_dz
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = du_dz[i];
-    Ns += N * J;
-    // Save dz_rad
-    for ( int i            = 0; i < N * J; i++ )
-        double_tmp[Ns + i] = dz_rad[i];
-    Ns += N * J;
-    if ( Ns != size_tmp ) {
-        delete[] double_tmp;
-        perr << "Error compressing data\n";
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    }
-    // Apply the compression
-    unsigned char *cdata = NULL;
-    size_t N_bytes_cdata = Utilities::compress_array( size_tmp, double_tmp, compression, &cdata );
-    // Create the output array
-    N_bytes = sizeof( byte_array_header ); // Storage space for the byte arry header
-    N_bytes += 4 * sizeof( int );          // Storage space for the int values
-    N_bytes += N_bytes_cdata;
-    char *data = new char[N_bytes];
-    // Create and save the byte array header
-    RAY_ASSERT( sizeof( byte_array_header ) == 16 );
-    byte_array_header *data1 = reinterpret_cast<byte_array_header *>( data );
-    data1[0]                 = byte_array_header();
-    byte_array_header &head  = *data1;
-    head.version             = 2;
-    head.type                = 1;
-    set_N_bytes( &head, N_bytes );
-    head.flags[0] = (unsigned char) compression;
-    // Save data_type, N, J, rad_type
-    int *data2 = (int *) &data1[1];
-    data2[0]   = data_type;
-    data2[1]   = N;
-    data2[2]   = J;
-    data2[3]   = rad_type;
-    // Copy the bulk of the data
-    unsigned char *cdata2 = (unsigned char *) &data2[4];
-    for ( size_t i = 0; i < N_bytes_cdata; i++ )
-        cdata2[i]  = cdata[i];
-    // Delete the temporary memory
-    delete[] cdata;
-    delete[] double_tmp;
-    return std::pair<char *, size_t>( data, N_bytes );
-}
-
-
-/**********************************************************************
-* Function to convert a byte array to a plasma data structure         *
-**********************************************************************/
-void RayTrace::plasma_struct::unpack( std::pair<const char *, size_t> data )
-{
-    // Read the header information
-    char *data2;
-    byte_array_header head = load_byte_header( data.first, &data2 );
-    if ( head.version > 0 && head.type != 1 )
-        RAY_ERROR( "Error: The byte array does not appear to contain plasma data" );
-    int compression = (int) head.flags[0];
-    // Save data_type, N, J, rad_type
-    int *data_int = (int *) data2;
-    int data_type = data_int[0];
-    int N         = data_int[1];
-    int J         = data_int[2];
-    int rad_type  = data_int[3];
-    if ( data_type < 1 || data_type > 2 )
-        RAY_ERROR( "Error: Invalid data type" );
-    if ( N < 1 || J < 1 )
-        RAY_ERROR( "Error: Invalid size" );
-    if ( rad_type < 1 || rad_type > 4 )
-        RAY_ERROR( "Error: Invalid ray_type" );
-    // Initialize the data structures in plasma
-    initialize( N, J, data_type, rad_type );
-    // Decompress the data into a single double array
-    size_t size_tmp = N;
-    if ( data_type == 1 )
-        size_tmp += 10 * N * J;
-    else if ( data_type == 2 )
-        size_tmp += 9 * N * J;
-    const unsigned char *cdata = reinterpret_cast<const unsigned char *>( &data_int[4] );
-    double *data_double        = NULL;
-    size_t N_bytes_cdata = read_N_bytes( head ) - sizeof( byte_array_header ) - 4 * sizeof( int );
-    size_t N_bytes       = read_N_bytes( head );
-    Utilities::decompress_array( size_tmp, N_bytes_cdata, cdata, compression, &data_double );
-    // Load T
-    size_t Ns = 0;
-    for ( int i = 0; i < N; i++ )
-        T[i]    = data_double[Ns + i];
-    Ns += N;
-    // Save x
-    for ( int i = 0; i < N * J; i++ )
-        x[i]    = data_double[Ns + i];
-    Ns += N * J;
-    // Save y
-    if ( y != NULL ) {
-        for ( int i = 0; i < N * J; i++ )
-            y[i]    = data_double[Ns + i];
-    }
-    Ns += N * J;
-    // Save Te
-    for ( int i = 0; i < N * J; i++ )
-        Te[i]   = data_double[Ns + i];
-    Ns += N * J;
-    // Save Ti
-    for ( int i = 0; i < N * J; i++ )
-        Ti[i]   = data_double[Ns + i];
-    Ns += N * J;
-    // Save Ne
-    for ( int i = 0; i < N * J; i++ )
-        Ne[i]   = data_double[Ns + i];
-    Ns += N * J;
-    // Save Ni
-    for ( int i = 0; i < N * J; i++ )
-        Ni[i]   = data_double[Ns + i];
-    Ns += N * J;
-    // Save R
-    if ( data_type == 1 ) {
-        for ( int i = 0; i < N * J; i++ )
-            R[i]    = data_double[Ns + i];
-        Ns += N * J;
-    }
-    // Save u
-    for ( int i = 0; i < N * J; i++ )
-        u[i]    = data_double[Ns + i];
-    Ns += N * J;
-    // Save du_dz
-    for ( int i  = 0; i < N * J; i++ )
-        du_dz[i] = data_double[Ns + i];
-    Ns += N * J;
-    // Save dz_rad
-    for ( int i   = 0; i < N * J; i++ )
-        dz_rad[i] = data_double[Ns + i];
-    Ns += N * J;
-    NULL_USE( Ns );
-    // Check the number of bytes read
-    check_N_bytes( head, N_bytes );
-    // Free the temporary memory and return
-    delete[] data_double;
-}
-
-
-/******************************************************************
-* Constructors/Destructors for gain_struct                        *
-******************************************************************/
-RayTrace::gain_struct::gain_struct() { memset( this, 0, sizeof( gain_struct ) ); }
-#ifdef ENABLE_MOVE_CONSTRUCTOR
-RayTrace::gain_struct::gain_struct( gain_struct &&rhs ) : gain_struct() { swap( rhs ); }
-RayTrace::gain_struct &RayTrace::gain_struct::operator=( gain_struct &&rhs )
-{
-    swap( rhs );
-    return *this;
-}
-#endif
-RayTrace::gain_struct::~gain_struct() { delete_data(); }
-void RayTrace::gain_struct::initialize( int N_in, int J_in )
-{
-    // Delete existing data
-    delete_data();
-    // Initialize the data
-    N   = N_in;
-    J   = J_in;
-    ii  = new bool[J];
-    g   = new double[N * J];
-    E   = new double[N * J];
-    W   = new double[N * J];
-    dvL = new double[N * J];
-    dvD = new double[N * J];
-    memset( ii, 0, J * sizeof( bool ) );
-    memset( g, 0, N * J * sizeof( double ) );
-    memset( E, 0, N * J * sizeof( double ) );
-    memset( W, 0, N * J * sizeof( double ) );
-    memset( dvL, 0, N * J * sizeof( double ) );
-    memset( dvD, 0, N * J * sizeof( double ) );
-    Z_max = 0;
-    Z_l   = 0;
-    nu    = 0;
-    nl    = 0;
-    for ( int i = 0; i <= ZMAX; i++ )
-        M[i]    = 0;
-}
-void RayTrace::gain_struct::initialize( const gain_struct &rhs )
-{
-    initialize( rhs.N, rhs.J );
-    Z_max = rhs.Z_max;
-    Z_l   = rhs.Z_l;
-    nu    = rhs.nu;
-    nl    = rhs.nl;
-    for ( int i = 0; i <= ZMAX; i++ )
-        M[i]    = rhs.M[i];
-    memcpy( ii, rhs.ii, J * sizeof( bool ) );
-    memcpy( g, rhs.g, N * J * sizeof( double ) );
-    memcpy( E, rhs.E, N * J * sizeof( double ) );
-    memcpy( W, rhs.E, N * J * sizeof( double ) );
-    memcpy( dvL, rhs.dvL, N * J * sizeof( double ) );
-    memcpy( dvD, rhs.dvD, N * J * sizeof( double ) );
-}
-void RayTrace::gain_struct::swap( RayTrace::gain_struct &rhs )
-{
-    std::swap( N, rhs.N );
-    std::swap( J, rhs.J );
-    std::swap( ii, rhs.ii );
-    std::swap( g, rhs.g );
-    std::swap( E, rhs.E );
-    std::swap( W, rhs.W );
-    std::swap( dvL, rhs.dvL );
-    std::swap( dvD, rhs.dvD );
-    std::swap( Z_max, rhs.Z_max );
-    std::swap( Z_l, rhs.Z_l );
-    std::swap( nu, rhs.nu );
-    std::swap( nl, rhs.nl );
-    for ( int i = 0; i <= ZMAX; i++ )
-        std::swap( M[i], rhs.M[i] );
-}
-void RayTrace::gain_struct::delete_data()
-{
-    delete[] ii;
-    ii = NULL;
-    delete[] g;
-    g = NULL;
-    delete[] E;
-    E = NULL;
-    delete[] W;
-    W = NULL;
-    delete[] dvL;
-    dvL = NULL;
-    delete[] dvD;
-    dvD   = NULL;
-    N     = 0;
-    J     = 0;
-    Z_max = 0;
-    Z_l   = 0;
-    nu    = 0;
-    nl    = 0;
-    for ( int i = 0; i <= ZMAX; i++ )
-        M[i]    = 0;
-}
-bool RayTrace::gain_struct::valid() const
-{
-    bool is_valid = true;
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( g[i] != g[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( E[i] != E[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( W[i] != W[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( dvL[i] != dvL[i] ) {
-            is_valid = false;
-        }
-    }
-    for ( int i = 0; i < N * J; i++ ) {
-        if ( dvD[i] != dvD[i] ) {
-            is_valid = false;
-        }
-    }
-    return is_valid;
-}
-bool RayTrace::gain_struct::operator==( const RayTrace::gain_struct &rhs ) const
-{
-    if ( N != rhs.N || J != rhs.J || Z_max != rhs.Z_max || Z_l != rhs.Z_l || nu != rhs.nu ||
-         nl != rhs.nl )
-        return false;
-    for ( int Z = 0; Z <= Z_max; Z++ ) {
-        if ( M[Z] != rhs.M[Z] )
-            return false;
-    }
-    for ( int i = 0; i < J; i++ ) {
-        if ( ii[i] != rhs.ii[i] )
-            return false;
-    }
-    bool equal = true;
-    equal      = equal && approx_equal( N * J, g, rhs.g );
-    equal      = equal && approx_equal( N * J, E, rhs.E );
-    equal      = equal && approx_equal( N * J, W, rhs.W );
-    equal      = equal && approx_equal( N * J, dvL, rhs.dvL );
-    equal      = equal && approx_equal( N * J, dvD, rhs.dvD );
-    return equal;
-}
-
-
-/**********************************************************************
-* Function to convert gain data to a byte array                       *
-**********************************************************************/
-std::pair<char *, size_t> RayTrace::gain_struct::pack( int compression ) const
-{
-    // Check the inputs
-    if ( compression < 0 || compression > 2 ) {
-        perr << "Unknown or unsupported compression type\n";
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    }
-    // First estimate the number of bytes needed to store the data
-    size_t N_bytes_estimate = 0;
-    N_bytes_estimate        = sizeof( byte_array_header ); // Storage space for the byte arry header
-    N_bytes_estimate += 6 * sizeof( int );                 // Storage space for int values
-    N_bytes_estimate += ( ZMAX + 1 ) * sizeof( int );      // Storage space for M
-    N_bytes_estimate += J * sizeof( bool );                // Storage space for ii
-    N_bytes_estimate += 5 * N * J * sizeof( double );      // Storage space for g, E, W, dvL, dvD
-    if ( compression != 0 ) {
-        N_bytes_estimate += 5 * sizeof( int );
-    }
-    // Allocate space to store the data
-    unsigned char *data = new unsigned char[N_bytes_estimate];
-    if ( data == NULL )
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    // Create and save the byte array header
-    assert( sizeof( byte_array_header ) == 16 );
-    byte_array_header *data1 = reinterpret_cast<byte_array_header *>( data );
-    data1[0]                 = byte_array_header();
-    byte_array_header &head  = *data1;
-    head.version             = 3;
-    head.type                = 4;
-    head.flags[0]            = (unsigned char) compression;
-    size_t N_bytes           = sizeof( byte_array_header );
-    // Save N, J, Z_max, Z_l, nu, nl, M
-    int *data_int = (int *) &data[N_bytes];
-    data_int[0]   = N;
-    data_int[1]   = J;
-    data_int[2]   = Z_max;
-    data_int[3]   = Z_l;
-    data_int[4]   = nu;
-    data_int[5]   = nl;
-    for ( int Z         = 0; Z <= Z_max; Z++ )
-        data_int[6 + Z] = M[Z];
-    N_bytes += 6 * sizeof( int );
-    N_bytes += ( Z_max + 1 ) * sizeof( int );
-    // Save ii
-    unsigned char *tmp = NULL;
-    size_t N_bytes_ii  = Utilities::compress_array<bool>( J, ii, compression, &tmp );
-    memcpy( &data[N_bytes], tmp, N_bytes_ii );
-    N_bytes += N_bytes_ii;
-    delete[] tmp;
-    // Save g, E, dvL, dvD
-    unsigned char *data_g = NULL, *data_E = NULL, *data_W = NULL, *data_dvL = NULL,
-                  *data_dvD = NULL;
-    size_t size_g           = Utilities::compress_array( N * J, g, compression, &data_g );
-    size_t size_E           = Utilities::compress_array( N * J, E, compression, &data_E );
-    size_t size_W           = Utilities::compress_array( N * J, W, compression, &data_W );
-    size_t size_dvL         = Utilities::compress_array( N * J, dvL, compression, &data_dvL );
-    size_t size_dvD         = Utilities::compress_array( N * J, dvD, compression, &data_dvD );
-    if ( compression != 0 ) {
-        int *data_int = (int *) &data[N_bytes];
-        data_int[0]   = static_cast<int>( size_g );
-        data_int[1]   = static_cast<int>( size_E );
-        data_int[2]   = static_cast<int>( size_dvL );
-        data_int[3]   = static_cast<int>( size_dvD );
-        data_int[4]   = static_cast<int>( size_W );
-        N_bytes += 5 * sizeof( int );
-    }
-    unsigned char *data_char = (unsigned char *) &data[N_bytes];
-    size_t Ns                = 0;
-    memcpy( &data_char[Ns], data_g, size_g );
-    Ns += size_g;
-    memcpy( &data_char[Ns], data_E, size_E );
-    Ns += size_E;
-    memcpy( &data_char[Ns], data_W, size_W );
-    Ns += size_W;
-    memcpy( &data_char[Ns], data_dvL, size_dvL );
-    Ns += size_dvL;
-    memcpy( &data_char[Ns], data_dvD, size_dvD );
-    Ns += size_dvD;
-    N_bytes += Ns;
-    delete[] data_g;
-    delete[] data_E;
-    delete[] data_W;
-    delete[] data_dvL;
-    delete[] data_dvD;
-    // Check the results and finish
-    if ( N_bytes > N_bytes_estimate ) {
-        perr << "Error converting data\n";
-        delete[] data;
-        return std::pair<char *, size_t>( (char *) NULL, 0 );
-    }
-    set_N_bytes( &head, N_bytes );
-    data1[0] = head;
-    return std::pair<char *, size_t>( (char *) data, N_bytes );
-}
-
-
-/**********************************************************************
-* Function to convert a byte array to a euv_beam data structure       *
-**********************************************************************/
-void RayTrace::gain_struct::unpack( std::pair<const char *, size_t> data_in )
-{
-    // Delete the existing data
-    delete_data();
-    // Read the header information
-    const char *data       = data_in.first;
-    char *data2            = NULL;
-    byte_array_header head = load_byte_header( data, &data2 );
-    if ( head.version > 0 && head.type != 4 )
-        RAY_ERROR( "Error: The byte array does not appear to contain gain data" );
-    unsigned char compression = head.flags[0];
-    size_t N_bytes            = data2 - data;
-    if ( read_N_bytes( head ) == 0 && compression != 0 )
-        RAY_ERROR( "Error: the byte array header appears invalid" );
-    // Load N, J, Z_max, Z_l, nu, nl, M
-    const int *data_int = reinterpret_cast<const int *>( &data[N_bytes] );
-    N                   = data_int[0];
-    J                   = data_int[1];
-    Z_max               = data_int[2];
-    Z_l                 = data_int[3];
-    nu                  = data_int[4];
-    nl                  = data_int[5];
-    N_bytes += 6 * sizeof( int );
-    if ( head.version >= 2 ) {
-        for ( int Z = 0; Z <= Z_max; Z++ )
-            M[Z]    = data_int[6 + Z];
-        N_bytes += ( Z_max + 1 ) * sizeof( int );
-    } else {
-        for ( int Z = 0; Z <= 92; Z++ )
-            M[Z]    = data_int[6 + Z];
-        N_bytes += ( 92 + 1 ) * sizeof( int );
-    }
-    // Load ii
-    size_t N_bytes_ii = compression == 0 ? J : ( J + 7 ) / 8;
-    Utilities::decompress_array<bool>(
-        J, N_bytes_ii, (unsigned char *) &data[N_bytes], compression, &( ii ) );
-    N_bytes += N_bytes_ii;
-    // Load g, E, dvL, dvD
-    int size_g = 0, size_E = 0, size_W = 0, size_dvL = 0, size_dvD = 0;
-    if ( compression == 0 ) {
-        size_g = size_E = size_W = size_dvL = size_dvD = N * J * sizeof( double );
-    } else {
-        int *data_int = (int *) &data[N_bytes];
-        size_g        = data_int[0];
-        size_E        = data_int[1];
-        size_dvL      = data_int[2];
-        size_dvD      = data_int[3];
-        if ( head.version >= 3 ) {
-            size_W = data_int[4];
-            N_bytes += 5 * sizeof( int );
-        } else {
-            N_bytes += 4 * sizeof( int );
-        }
-    }
-    int NJ = N * J;
-    Utilities::decompress_array<double>(
-        NJ, size_g, (unsigned char *) &data[N_bytes], compression, &g );
-    N_bytes += size_g;
-    Utilities::decompress_array<double>(
-        NJ, size_E, (unsigned char *) &data[N_bytes], compression, &E );
-    N_bytes += size_E;
-    if ( head.version >= 3 ) {
-        Utilities::decompress_array<double>(
-            NJ, size_W, (unsigned char *) &data[N_bytes], compression, &W );
-        N_bytes += size_W;
-    } else {
-        W = new double[N * J];
-        memset( W, 0, N * J * sizeof( double ) );
-    }
-    Utilities::decompress_array<double>(
-        NJ, size_dvL, (unsigned char *) &data[N_bytes], compression, &dvL );
-    N_bytes += size_dvL;
-    Utilities::decompress_array<double>(
-        NJ, size_dvD, (unsigned char *) &data[N_bytes], compression, &dvD );
-    N_bytes += size_dvD;
-    // Check the number of bytes read
-    check_N_bytes( head, N_bytes );
 }
 
 
@@ -1606,6 +877,17 @@ void RayTrace::seed_beam_struct::initialize( int Nx, int Ny, int Na, int Nb )
     tau.clear();
     use_transform.clear();
 }
+RayTrace::seed_beam_struct::seed_beam_struct( seed_beam_struct &&rhs ):
+    seed_beam_struct()
+{
+    swap( rhs );
+}
+RayTrace::seed_beam_struct& RayTrace::seed_beam_struct::operator=( seed_beam_struct &&rhs )
+{
+    if ( this != &rhs )
+        swap( rhs );
+    return *this;
+}
 void RayTrace::seed_beam_struct::delete_data()
 {
     dx     = 0;
@@ -1641,6 +923,38 @@ void RayTrace::seed_beam_struct::delete_data()
     seed_shape.clear();
     tau.clear();
     use_transform.clear();
+}
+void RayTrace::seed_beam_struct::swap( seed_beam_struct& rhs)
+{
+    std::swap( x,  rhs.x );
+    std::swap( y,  rhs.y );
+    std::swap( a,  rhs.a );
+    std::swap( b,  rhs.b );
+    std::swap( dx, rhs.dx );
+    std::swap( dy, rhs.dy );
+    std::swap( da, rhs.da );
+    std::swap( db, rhs.db );
+    std::swap( nx, rhs.nx );
+    std::swap( ny, rhs.ny );
+    std::swap( na, rhs.na );
+    std::swap( nb, rhs.nb );
+    std::swap( Wx, rhs.Wx );
+    std::swap( Wy, rhs.Wy );
+    std::swap( Wa, rhs.Wa );
+    std::swap( Wb, rhs.Wb );
+    std::swap( Wv, rhs.Wv );
+    std::swap( Wt, rhs.Wt );
+    std::swap( x0, rhs.x0 );
+    std::swap( y0, rhs.y0 );
+    std::swap( a0, rhs.a0 );
+    std::swap( b0, rhs.b0 );
+    std::swap( t0, rhs.t0 );
+    std::swap( E,  rhs.E );
+    std::swap( target, rhs.target );
+    std::swap( chirp, rhs.chirp );
+    std::swap( seed_shape, rhs.seed_shape );
+    std::swap( tau, rhs.tau );
+    std::swap( use_transform, rhs.use_transform );
 }
 bool RayTrace::seed_beam_struct::valid() const
 {
@@ -2576,6 +1890,7 @@ bool RayTrace::intensity_struct::operator==( const RayTrace::intensity_struct &r
 }
 void RayTrace::intensity_struct::swap( RayTrace::intensity_struct &rhs )
 {
+    std::swap( N, rhs.N );
     std::swap( nx, rhs.nx );
     std::swap( ny, rhs.ny );
     std::swap( na, rhs.na );
@@ -2596,120 +1911,6 @@ void RayTrace::intensity_struct::swap( RayTrace::intensity_struct &rhs )
         std::swap( E_sum_seed[i], rhs.E_sum_seed[i] );
         std::swap( I_it_seed[i], rhs.I_it_seed[i] );
         std::swap( E_tot_seed[i], rhs.E_tot_seed[i] );
-    }
-}
-
-
-/******************************************************************
-* Constructors/Destructors for tree_struct                        *
-******************************************************************/
-RayTrace::tree_struct::tree_struct()
-{
-    level = -1;
-    a     = NULL;
-    b     = NULL;
-}
-RayTrace::tree_struct::~tree_struct()
-{
-    delete a;
-    a = NULL;
-    delete b;
-    b     = NULL;
-    level = -1;
-}
-bool RayTrace::tree_struct::operator==( const RayTrace::tree_struct &rhs ) const
-{
-    if ( level != rhs.level )
-        return false;
-    if ( ( a == NULL ) != ( rhs.a == NULL ) || ( b == NULL ) != ( rhs.b == NULL ) )
-        return false;
-    if ( a != NULL ) {
-        if ( ( *a ) != ( *rhs.a ) )
-            return false;
-    }
-    if ( b != NULL ) {
-        if ( ( *b ) != ( *rhs.b ) )
-            return false;
-    }
-    return true;
-}
-int RayTrace::tree_struct::depth() const
-{
-    int d = 0;
-    if ( a != NULL ) {
-        d = std::max( d, a->depth() );
-    };
-    if ( b != NULL ) {
-        d = std::max( d, b->depth() );
-    };
-    return d + 1;
-}
-int RayTrace::tree_struct::nodes() const
-{
-    int n = 1;
-    if ( a != NULL ) {
-        n += a->nodes();
-    };
-    if ( b != NULL ) {
-        n += b->nodes();
-    };
-    return n;
-}
-
-
-/**********************************************************************
-* Function to convert tree structure to a byte array                  *
-* Note that we do not want to include a byte array header for the     *
-* tree structure as this will significantly increase the memory       *
-* requirements (by a factor of 2.3x).                                 *
-**********************************************************************/
-std::pair<char *, size_t> RayTrace::tree_struct::pack() const
-{
-    // Convert the leaves of the tree to byte arrays
-    std::pair<char *, size_t> data_a( (char *) NULL, 0 );
-    std::pair<char *, size_t> data_b( (char *) NULL, 0 );
-    if ( a != NULL )
-        data_a = a->pack();
-    if ( b != NULL )
-        data_b     = b->pack();
-    size_t N_bytes = data_a.second + data_b.second + 3 * sizeof( int );
-    char *data     = new char[N_bytes];
-    // Store the tree
-    int *data_int   = (int *) data;
-    data_int[0]     = level;
-    data_int[1]     = static_cast<int>( data_a.second );
-    data_int[2]     = static_cast<int>( data_b.second );
-    char *data_char = (char *) &data_int[3];
-    memcpy( &data_char[0], data_a.first, data_a.second );
-    memcpy( &data_char[data_a.second], data_b.first, data_b.second );
-    delete[] data_a.first;
-    delete[] data_b.first;
-    return std::pair<char *, size_t>( data, N_bytes );
-}
-
-
-/**********************************************************************
-* Function to unpack the tree structure                               *
-**********************************************************************/
-void RayTrace::tree_struct::unpack( std::pair<const char *, size_t> data )
-{
-    delete a;
-    a = NULL;
-    delete b;
-    b             = NULL;
-    int *data_int = (int *) data.first;
-    level         = data_int[0];
-    int N_bytes_a = data_int[1];
-    int N_bytes_b = data_int[2];
-    char *data_a  = (char *) &data_int[3];
-    char *data_b  = &data_a[N_bytes_a];
-    if ( N_bytes_a > 0 ) {
-        a = new tree_struct;
-        a->unpack( std::pair<char *, size_t>( data_a, N_bytes_a ) );
-    }
-    if ( N_bytes_b > 0 ) {
-        b = new tree_struct;
-        b->unpack( std::pair<char *, size_t>( data_b, N_bytes_b ) );
     }
 }
 
@@ -2936,171 +2137,6 @@ void RayTrace::ray_gain_struct::free_device(
 
 
 /**********************************************************************
-* plasma_gain_step_struct                                             *
-**********************************************************************/
-RayTrace::plasma_gain_step_struct::plasma_gain_step_struct()
-{
-    memset( this, 0, sizeof( plasma_gain_step_struct ) );
-}
-RayTrace::plasma_gain_step_struct::~plasma_gain_step_struct() { delete_data(); }
-void RayTrace::plasma_gain_step_struct::delete_data()
-{
-    delete[] ii;
-    delete[] x;
-    delete[] y;
-    delete[] Ne;
-    delete[] R;
-    delete[] g;
-    delete[] E;
-    delete[] dvL;
-    delete[] dvD;
-    memset( this, 0, sizeof( plasma_gain_step_struct ) );
-}
-void RayTrace::plasma_gain_step_struct::initialize(
-    double T, const plasma_struct &plasma, const gain_struct &gain )
-{
-    delete_data();
-    RAY_ASSERT( plasma.x != NULL );
-    RAY_ASSERT( plasma.y != NULL );
-    RAY_ASSERT( plasma.Ne != NULL );
-    RAY_ASSERT( gain.g != NULL );
-    RAY_ASSERT( gain.E != NULL );
-    RAY_ASSERT( gain.dvL != NULL );
-    RAY_ASSERT( gain.dvD != NULL );
-    data_type = plasma.data_type;
-    J         = plasma.J;
-    ii        = new bool[J];
-    x         = new double[J];
-    y         = new double[J];
-    Ne        = new double[J];
-    g         = new double[J];
-    E         = new double[J];
-    dvL       = new double[J];
-    dvD       = new double[J];
-    memcpy( ii, gain.ii, J * sizeof( bool ) );
-    size_t t  = interp::findfirstsingle( plasma.T, plasma.N, T );
-    t         = std::max<size_t>( t, 1 );
-    t         = std::min<size_t>( t, plasma.N - 1 );
-    double dt = ( T - plasma.T[t - 1] ) / ( plasma.T[t] - plasma.T[t - 1] );
-    dt        = std::max( dt, 0.0 );
-    dt        = std::min( dt, 1.0 );
-    for ( int j = 0; j < J; j++ ) {
-        size_t i1 = ( t - 1 ) + j * plasma.N;
-        size_t i2 = t + j * plasma.N;
-        x[j]      = interp::linear( dt, plasma.x[i1], plasma.x[i2] );
-        y[j]      = interp::linear( dt, plasma.y[i1], plasma.y[i2] );
-        Ne[j]     = interp::linear( dt, plasma.Ne[i1], plasma.Ne[i2] );
-        g[j]      = interp::linear( dt, gain.g[i1], gain.g[i2] );
-        E[j]      = interp::linear( dt, gain.E[i1], gain.E[i2] );
-        dvL[j]    = interp::linear( dt, gain.dvL[i1], gain.dvL[i2] );
-        dvD[j]    = interp::linear( dt, gain.dvD[i1], gain.dvD[i2] );
-    }
-    if ( plasma.R != NULL ) {
-        R = new double[J];
-        for ( int j = 0; j < J; j++ ) {
-            size_t i1 = ( t - 1 ) + j * plasma.N;
-            size_t i2 = t + j * plasma.N;
-            R[j]      = interp::linear( dt, plasma.R[i1], plasma.R[i2] );
-        }
-    }
-    if ( T < plasma.T[0] || T > plasma.T[plasma.N - 1] ) {
-        memset( g, 0, J * sizeof( double ) );
-        memset( E, 0, J * sizeof( double ) );
-    }
-}
-
-
-/**********************************************************************
-* Helper structures for apply                                         *
-**********************************************************************/
-RayTrace::apply_input_params::apply_input_params()
-{
-    T0           = 0;
-    dT           = 0;
-    NN           = 0;
-    euv_beam     = NULL;
-    plasma       = NULL;
-    gain         = NULL;
-    N_seed       = 0;
-    seed_beam    = NULL;
-    N_meta       = NULL;
-    W0           = NULL;
-    ion          = NULL;
-    load_balance = NULL;
-    tpool        = NULL;
-}
-RayTrace::apply_input_params::apply_input_params( const RayTrace::apply_input_params &rhs )
-    : T0( rhs.T0 ),
-      dT( rhs.dT ),
-      NN( rhs.NN ),
-      euv_beam( rhs.euv_beam ),
-      plasma( rhs.plasma ),
-      gain( rhs.gain ),
-      N_seed( rhs.N_seed ),
-      seed_beam( rhs.seed_beam ),
-      N_meta( rhs.N_meta ),
-      W0( rhs.W0 ),
-      ion( rhs.ion ),
-      load_balance( rhs.load_balance ),
-      tpool( rhs.tpool ),
-      interp_W_method( rhs.interp_W_method )
-{
-}
-RayTrace::apply_input_params &RayTrace::apply_input_params::operator=(
-    const RayTrace::apply_input_params &rhs )
-{
-    if ( this == &rhs )
-        return *this;
-    this->T0              = rhs.T0;
-    this->dT              = rhs.dT;
-    this->NN              = rhs.NN;
-    this->euv_beam        = rhs.euv_beam;
-    this->plasma          = rhs.plasma;
-    this->gain            = rhs.gain;
-    this->N_seed          = rhs.N_seed;
-    this->seed_beam       = rhs.seed_beam;
-    this->N_meta          = rhs.N_meta;
-    this->W0              = rhs.W0;
-    this->ion             = rhs.ion;
-    this->load_balance    = rhs.load_balance;
-    this->tpool           = rhs.tpool;
-    this->interp_W_method = rhs.interp_W_method;
-    return *this;
-}
-RayTrace::apply_input_params::~apply_input_params() {}
-RayTrace::apply_output_results::apply_output_results( int J_in, int Nt_in )
-{
-    memset( this, 0, sizeof( apply_output_results ) );
-    J      = J_in;
-    Nt     = Nt_in;
-    W      = new double[J];
-    r      = new double[J];
-    Jii    = new double[J];
-    Hii    = new double[J];
-    g      = new double[J];
-    E      = new double[J];
-    N_meta = new double[J * Nt];
-    memset( W, 0, J * sizeof( double ) );
-    memset( r, 0, J * sizeof( double ) );
-    memset( Jii, 0, J * sizeof( double ) );
-    memset( Hii, 0, J * sizeof( double ) );
-    memset( g, 0, J * sizeof( double ) );
-    memset( E, 0, J * sizeof( double ) );
-    memset( N_meta, 0, J * Nt * sizeof( double ) );
-}
-RayTrace::apply_output_results::~apply_output_results()
-{
-    delete[] W;
-    delete[] r;
-    delete[] Jii;
-    delete[] Hii;
-    delete[] g;
-    delete[] E;
-    delete[] N_meta;
-}
-
-
-/**********************************************************************
 * create_image_struct                                                 *
 **********************************************************************/
 RayTrace::create_image_struct::create_image_struct()
@@ -3256,88 +2292,3 @@ void RayTrace::create_image_struct::unpack( std::pair<const char *, size_t> data
 }
 
 
-/**********************************************************************
-* load_balance_struct                                                 *
-**********************************************************************/
-RayTrace::load_balance_struct::load_balance_struct()
-{
-    comm       = MPI_COMM_WORLD;
-    size       = MPI_size( comm );
-    rank       = MPI_rank( comm );
-    J          = -1;
-    sync_N_pop = false;
-    proc_zone  = NULL;
-#if PARALLEL_METHOD == 1
-    for ( int i = 0; i < 4; i++ ) {
-        i_ASE[i]  = -1;
-        n_ASE[i]  = -1;
-        i_seed[i] = -1;
-        n_seed[i] = -1;
-    }
-#elif PARALLEL_METHOD == 2
-    N_start    = 0;
-    N_parallel = 1;
-#endif
-}
-RayTrace::load_balance_struct::load_balance_struct( int J_ )
-{
-    comm       = MPI_COMM_WORLD;
-    size       = MPI_size( comm );
-    rank       = MPI_rank( comm );
-    J          = J_;
-    sync_N_pop = false;
-    proc_zone  = new int[J];
-    for ( int i      = 0; i < J; i++ )
-        proc_zone[i] = i % size;
-#if PARALLEL_METHOD == 1
-    for ( int i = 0; i < 4; i++ ) {
-        i_ASE[i]  = -1;
-        n_ASE[i]  = -1;
-        i_seed[i] = -1;
-        n_seed[i] = -1;
-    }
-#elif PARALLEL_METHOD == 2
-    N_start    = 0;
-    N_parallel = 1;
-#endif
-}
-RayTrace::load_balance_struct::~load_balance_struct() { delete[] proc_zone; }
-bool RayTrace::load_balance_struct::valid( int J0, int rad_type, const bool *ii ) const
-{
-    int rank0 = MPI_rank( comm );
-    int size0 = MPI_size( comm );
-    if ( rank != rank0 || size != size0 ) {
-        char tmp[100];
-        sprintf(
-            tmp, "   rank = %i, size = %i, load_balance = %i, %i\n", rank0, size0, rank, size );
-        perr << "Error, load_balance information does not match MPI rank or size\n" << tmp;
-        return false;
-    }
-    if ( size > 1 ) {
-        // Check that the load balance information exists
-        if ( proc_zone == NULL || J != J0 ) {
-            perr << "Error, multiple processors are used but load_balance is not properly filled\n";
-            return false;
-        }
-        // Check that the load balance information is set correctly
-        if ( rad_type == 4 ) {
-            // Note: Parallel processing of the atomic populations is not currently supported for
-            // full radiation transport
-            for ( int i = 0; i < J; i++ ) {
-                if ( proc_zone[i] != 0 ) {
-                    perr << "Error, full radiation transport is used, processor 0 must perform all "
-                            "atomic calculations\n";
-                    return false;
-                }
-            }
-        } else {
-            for ( int i = 0; i < J; i++ ) {
-                if ( ii[i] && ( proc_zone[i] < 0 || proc_zone[i] >= size ) ) {
-                    perr << "Error, no processor owns the current zone\n";
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}

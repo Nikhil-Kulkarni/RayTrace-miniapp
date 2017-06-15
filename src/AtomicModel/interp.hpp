@@ -1,7 +1,6 @@
 #ifndef included_interp_hpp
 #define included_interp_hpp
 
-#include "AtomicModel/interp.h"
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -340,6 +339,22 @@ void interp::quicksort( size_t size, T1 *arr, T2 *brr )
             }
         }
     }
+}
+
+
+template <class type>
+inline void quicksort( std::vector<type>& X )
+{
+    quicksort(X.size(),X.data());
+}
+
+
+template <class type1, class type2>
+inline void quicksort( std::vector<type1>& X, std::vector<type2>& Y )
+{
+    if ( X.size() != Y.size() )
+        throw std::logic_error( "Error: X.size() != Y>size()" );
+    quicksort(X.size(),X.data(),Y.data());
 }
 
 
