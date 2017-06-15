@@ -19,5 +19,5 @@ cmake                          \
    -D USE_OPENMP=1             \
    -D USE_CUDA=0               \
    -D USE_KOKKOS=0             \
-   ../src
+   ../../src
 

@@ -20,5 +20,5 @@ cmake                                   \
       -D KOKKOS_WRAPPER=${KOKKOS_DIR}/bin/nvcc_wrapper \
    -D USE_CUDA=1                        \
       -D CUDA_FLAGS="-arch sm_30"       \
-   ../src
+   ../../src
 

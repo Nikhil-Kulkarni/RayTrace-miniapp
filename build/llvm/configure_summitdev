@@ -10,6 +10,7 @@ cmake                                   \
    -D CMAKE_BUILD_TYPE=Release          \
    -D CMAKE_C_COMPILER=${CLANG_BIN}/clang \
    -D CMAKE_CXX_COMPILER=${CLANG_BIN}/clang++ \
+   -D CMAKE_CXX_FLAGS_RELEASE="-Ofast -DNDEBUG" \
    -D LDFLAGS="-L ${CLANG_OMP_LIB}"     \
    -D CXX_STD=11                        \
    -D USE_OPENACC=0                     \
@@ -17,7 +18,7 @@ cmake                                   \
    -D USE_KOKKOS=0                      \
       -D KOKKOS_DIRECTORY=${KOKKOS_DIR} \
       -D KOKKOS_WRAPPER=${KOKKOS_DIR}/bin/nvcc_wrapper \
-   -D USE_CUDA=0                        \
+   -D USE_CUDA=1                        \
       -D CUDA_FLAGS="-arch sm_30"       \
-   ../src
+   ../../src
 

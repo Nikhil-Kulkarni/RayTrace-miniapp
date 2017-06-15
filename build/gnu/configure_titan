@@ -19,5 +19,5 @@ cmake                          \
    -D CUDA_HOST_COMPILER="/opt/gcc/4.9.0/bin/g++" \
    -D USE_KOKKOS=0             \
       -D KOKKOS_DIRECTORY=~/stf006/install/titan/TPLs/opt/kokkos \
-   ../src
+   ../../src
 
