@@ -1890,6 +1890,7 @@ bool RayTrace::intensity_struct::operator==( const RayTrace::intensity_struct &r
 }
 void RayTrace::intensity_struct::swap( RayTrace::intensity_struct &rhs )
 {
+    std::swap( N, rhs.N );
     std::swap( nx, rhs.nx );
     std::swap( ny, rhs.ny );
     std::swap( na, rhs.na );

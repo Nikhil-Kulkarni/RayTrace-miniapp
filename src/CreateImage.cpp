@@ -68,6 +68,7 @@ int run_tests( const std::string& filename, const Options& options )
 #endif
 #ifdef USE_CUDA
         methods.push_back( "Cuda" );
+        methods.push_back( "Cuda-MultiGPU" );
 #endif
 #ifdef USE_OPENACC
         methods.push_back( "OpenAcc" );

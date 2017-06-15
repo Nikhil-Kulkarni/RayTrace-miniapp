@@ -428,7 +428,7 @@ HOST_DEVICE inline T1 integrate_simpson(
  *    using an adaptive Simpson's rule.  This requires N+1 function evaluations.
  * @param[in] fun       The function to integrate of the form y = f(x)
  * @param[in] range     The range to integrate
- * @param[in] tol       Number of sub-intervals to use
+ * @param[in] tol       Absolute tolerance to use
  * @param[in] N_eval    Total number of evalutations
  * @param[in] norm      Function to compute the norm to use for the error
  */
@@ -446,7 +446,7 @@ HOST_DEVICE inline T1 integrate( const std::function<T1( T2 )> &fun, const std::
  * N=1).
  * @param[in] fun       The function to integrate of the form y = f(x)
  * @param[in] range     The range to integrate
- * @param[in] tol       Number of sub-intervals to use
+ * @param[in] tol       Absolute tolerance to use
  * @param[in] N_eval    Total number of evalutations
  * @param[in] norm      Function to compute the norm to use for the error
  */
@@ -463,7 +463,7 @@ HOST_DEVICE inline T1 integrate( const std::function<T1( T2, T2 )> &fun,
  *    using an adaptive Simpson's rule.
  * @param[in] fun       The function to integrate of the form y = f(x)
  * @param[in] range     The range to integrate
- * @param[in] tol       Number of sub-intervals to use
+ * @param[in] tol       Absolute tolerance to use
  * @param[in] N_eval    Total number of evalutations
  * @param[in] norm      Function to compute the norm to use for the error
  */

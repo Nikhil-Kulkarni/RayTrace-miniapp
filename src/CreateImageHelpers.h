@@ -59,7 +59,7 @@ public:
             "  CreateImage <args> file.dat\n"
             "Optional arguments:\n"
             "  -methods=METHODS  Comma seperated list of methods to test.  Default is all availible methods\n"
-            "                    cpu, threads, OpenMP, Cuda, OpenAcc, Kokkos-Serial, "
+            "                    cpu, threads, OpenMP, Cuda, Cuda-MultiGPU, OpenAcc, Kokkos-Serial, "
             "Kokkos-Thread, Kokkos-OpenMP, Kokkos-Cuda\n"
             "  -iterations=N     Number of iterations to run.  Time returned will be "
             "the average time/iteration.\n"

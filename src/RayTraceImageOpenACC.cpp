@@ -1,13 +1,29 @@
 #include "common/RayTraceImageHelper.h"
 
 
-void RayTraceImageOpenAccLoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
+void RayTraceImageOpenAccLoop( int N, const RayTrace::EUV_beam_struct& beam,
     double db, const double *dv, const RayTrace::ray_gain_struct *gain_in,
     const RayTrace::ray_seed_struct *seed_in, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays )
 {
+    // Copy some variables
+    const int nx     = beam.nx;
+    const int ny     = beam.ny;
+    const int na     = beam.na;
+    const int nb     = beam.nb;
+    const int nv     = beam.nv;
+    const double *x  = beam.x;
+    const double *y  = beam.y;
+    const double *a  = beam.a;
+    const double *b  = beam.b;
+    const double dx  = beam.dx;
+    const double dy  = beam.dy;
+    const double dz  = beam.dz;
+    const double da  = beam.da;
+    const double db  = beam.db;
+    const double *dv = beam.dv;
+
     int N_rays              = rays.size();
     const ray_struct *rays2 = &rays[0];
     failure_code            = 0;

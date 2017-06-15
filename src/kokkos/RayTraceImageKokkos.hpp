@@ -162,44 +162,51 @@ void free_seed_device<Kokkos::Cuda>( const RayTrace::ray_seed_struct *seed )
 #endif
 
 
+
+
 template <class Device>
-void RayTraceImageKokkosLoop( int N, int nx, int ny, int na, int nb, int nv, const double *x,
-    const double *y, const double *a, const double *b, double dx, double dy, double dz, double da,
-    double db, const double *dv, const RayTrace::ray_gain_struct *gain_in,
+void RayTraceImageKokkosLoop( int N, const RayTrace::EUV_beam_struct& beam,
+    const RayTrace::ray_gain_struct *gain_in,
     const RayTrace::ray_seed_struct *seed_in, int method, const std::vector<ray_struct> &rays,
     double scale, double *image, double *I_ang, unsigned int &failure_code,
     std::vector<ray_struct> &failed_rays )
 {
     failure_code = 0;
+    const int nx = beam.nx;
+    const int ny = beam.ny;
+    const int na = beam.na;
+    const int nb = beam.nb;
+    const int nv = beam.nv;
+    const double dx = beam.dx;
+    const double dy = beam.dy;
+    const double dz = beam.dz;
+    const double da = beam.da;
+    const double db = beam.db;
     // Get gain and seed on the device
     const RayTrace::ray_gain_struct *gain = copy_gain_device<Device>( N, gain_in );
     const RayTrace::ray_seed_struct *seed = copy_seed_device<Device>( seed_in );
     // Copy the data to the device
-    Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        x_host( x, nx );
-    Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        y_host( y, ny );
-    Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        a_host( a, na );
-    Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        b_host( b, nb );
-    Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        dv_host( dv, nv );
-    Kokkos::View<const ray_struct *, Kokkos::LayoutRight, Kokkos::HostSpace,
-        Kokkos::MemoryUnmanaged>
-        rays_host( &rays[0], rays.size() );
-    Kokkos::View<double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        image_host( image, nx * ny * nv );
-    Kokkos::View<double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged>
-        I_ang_host( I_ang, na * nb );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> x_dev( "x", nx );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> y_dev( "y", ny );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> a_dev( "a", na );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> b_dev( "b", nb );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> dv_dev( "dv", nv );
-    Kokkos::View<ray_struct *, Kokkos::LayoutRight, Device> rays_dev( "rays", rays.size() );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> image_dev( "image", nx * ny * nv );
-    Kokkos::View<double *, Kokkos::LayoutRight, Device> I_ang_dev( "I_ang", na * nb );
+    typedef Kokkos::View<const double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged> KokkosConstHostDouble;
+    typedef Kokkos::View<const ray_struct *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged> KokkosConstHostRay;
+    typedef Kokkos::View<double *, Kokkos::LayoutRight, Kokkos::HostSpace, Kokkos::MemoryUnmanaged> KokkosHostDouble;
+    typedef Kokkos::View<double *, Kokkos::LayoutRight, Device> KokkosDeviceDouble;
+    typedef Kokkos::View<ray_struct *, Kokkos::LayoutRight, Device> KokkosDeviceRay;
+    KokkosConstHostDouble x_host( beam.x, nx );
+    KokkosConstHostDouble y_host( beam.y, ny );
+    KokkosConstHostDouble a_host( beam.a, na );
+    KokkosConstHostDouble b_host( beam.b, nb );
+    KokkosConstHostDouble dv_host( beam.dv, nv );
+    KokkosConstHostRay rays_host( &rays[0], rays.size() );
+    KokkosHostDouble image_host( image, nx * ny * nv );
+    KokkosHostDouble I_ang_host( I_ang, na * nb );
+    KokkosDeviceDouble x_dev( "x", nx );
+    KokkosDeviceDouble y_dev( "y", ny );
+    KokkosDeviceDouble a_dev( "a", na );
+    KokkosDeviceDouble b_dev( "b", nb );
+    KokkosDeviceDouble dv_dev( "dv", nv );
+    KokkosDeviceRay rays_dev( "rays", rays.size() );
+    KokkosDeviceDouble image_dev( "image", nx * ny * nv );
+    KokkosDeviceDouble I_ang_dev( "I_ang", na * nb );
     Kokkos::deep_copy( x_dev, x_host );
     Kokkos::deep_copy( y_dev, y_host );
     Kokkos::deep_copy( a_dev, a_host );
