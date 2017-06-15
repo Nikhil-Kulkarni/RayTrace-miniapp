@@ -5,10 +5,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdint.h>
-
-#if CXX_STD == 11 || CXX_STD == 14
-    #include <thread>
-#endif
+#include <thread>
 
 // Timer include
 #include "ProfilerApp.h"
@@ -89,7 +86,6 @@ void setGPU( int id )
     cudaSetDevice(id);
 #endif
 }
-#if CXX_STD == 11 || CXX_STD == 14
 void RayTraceImageThreadLoop( size_t N_threads, 
     std::function<void( int, const RayTrace::EUV_beam_struct&,
         const RayTrace::ray_gain_struct*, const RayTrace::ray_seed_struct*,
@@ -136,7 +132,6 @@ void RayTraceImageThreadLoop( size_t N_threads,
         rays2[i].clear();
     }
 }
-#endif
 
 
 /**********************************************************************
@@ -412,14 +407,10 @@ void RayTrace::create_image( create_image_struct *info, std::string compute_meth
         RayTraceImageCPULoop( N, std::ref(*info->euv_beam), info->gain, info->seed,
             method, rays, scale, image, I_ang, failure_code, failed_rays );
     } else if ( compute_method == "threads" ) {
-#if CXX_STD == 11 || CXX_STD == 14
         size_t N_threads = std::thread::hardware_concurrency();
         RayTraceImageThreadLoop( N_threads, RayTraceImageCPULoop, [](int) {},
             N, std::ref(*info->euv_beam), info->gain, info->seed,
             method, rays, scale, image, I_ang, failure_code, failed_rays );
-#else
-        RAY_ERROR( "Threaded version requires C++11" );
-#endif
     } else if ( compute_method == "openmp" ) {
 #if defined( ENABLE_OPENMP )
         RayTraceImageOpenMPLoop( N, std::ref(*info->euv_beam), info->gain, info->seed,

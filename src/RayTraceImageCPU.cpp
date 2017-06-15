@@ -4,10 +4,8 @@
 
 #include "common/RayTraceImageHelper.h"
 
-#if CXX_STD == 11 || CXX_STD == 14
 #include <atomic>
 #include <thread>
-#endif
 
 
 inline int getIndex( int n, const double *x, double dx, double y )
