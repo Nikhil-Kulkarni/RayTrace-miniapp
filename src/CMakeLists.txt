@@ -17,7 +17,7 @@ ENDIF ()
 
 
 # Set the project name
-PROJECT( RAYTRACE-MINIAPPS )
+PROJECT( RAYTRACE-MINIAPPS CXX )
 
 
 # Set some common paths
