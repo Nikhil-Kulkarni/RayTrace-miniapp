@@ -18,6 +18,7 @@
 
 #ifdef USE_KOKKOS
 #include <Kokkos_Core.hpp>
+#include <Kokkos_Cuda.hpp>
 #endif
 
 
@@ -103,7 +104,7 @@ int run_tests( const std::string& filename, const Options& options )
 #ifdef USE_KOKKOS
         methods.push_back( "Kokkos-Serial" );
 #ifdef KOKKOS_HAVE_PTHREAD
-//methods.push_back("Kokkos-Thread");
+// methods.push_back("Kokkos-Thread");
 #endif
 #ifdef KOKKOS_HAVE_OPENMP
         methods.push_back( "Kokkos-OpenMP" );

@@ -326,7 +326,6 @@ struct create_image_struct {
     //! to a unique number for each thread)
     int N_parallel; //!<  Number of rays processed in parallel (set to 0 for domain based
     //! decomposition, otherwise set to the number of threads)
-    double dz;                       //!<  Grid size along the length
     const EUV_beam_struct *euv_beam; //!<  Input beam structure that contains information about the
     //! desired euv beam grid
     const seed_beam_struct *seed_beam; //!<  Input seed beam structure (may be NULL)

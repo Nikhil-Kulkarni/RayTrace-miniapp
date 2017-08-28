@@ -482,9 +482,11 @@ inline int RayTrace_calc_ray( const ray_struct &ray, const int N, const float dz
                 float dxi = (float) ( ( pos.x - ptr_x[k1 - 1] ) / ( ptr_x[k1] - ptr_x[k1 - 1] ) );
                 float dyi = (float) ( ( y2 - ptr_y[k2 - 1] ) / ( ptr_y[k2] - ptr_y[k2 - 1] ) );
                 float g0  = bilinear( dxi, dyi, ptr_g0[i1], ptr_g0[i2], ptr_g0[i3], ptr_g0[i4] );
-                float E0  = use_emis ? bilinear( dxi, dyi, ptr_E0[i1], ptr_E0[i2], ptr_E0[i3],
-                                          ptr_E0[i4] ) :
-                                      0.0f;
+                float E0  = 0.0f;
+                if ( use_emis ) {
+                    E0 = bilinear( dxi, dyi, ptr_E0[i1], ptr_E0[i2], ptr_E0[i3], ptr_E0[i4] );
+                    E0 = E0>=0 ? E0:0.0f;
+                }
                 // Update x and s
                 pos.z          = 0.0f;
                 float range[4] = { (float) ( x[0] - 0.1 * ( ptr_x[k1] - ptr_x[k1 - 1] ) ),

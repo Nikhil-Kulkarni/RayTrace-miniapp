@@ -2144,7 +2144,6 @@ RayTrace::create_image_struct::create_image_struct()
     N          = 0;
     N_start    = 0;
     N_parallel = 1;
-    dz         = 0.0;
     euv_beam   = NULL;
     seed_beam  = NULL;
     gain       = NULL;
@@ -2188,7 +2187,7 @@ std::pair<char *, size_t> RayTrace::create_image_struct::pack( int compression )
     pack_buffer<int>( N, pos, data );
     pack_buffer<int>( N_start, pos, data );
     pack_buffer<int>( N_parallel, pos, data );
-    pack_buffer<double>( dz, pos, data );
+    pack_buffer<double>( euv_beam->dz, pos, data );
     // Copy euv_beam to the buffer
     pack_buffer<unsigned int>( (unsigned int) euv_beam_data.second, pos, data );
     memcpy( &data[pos], euv_beam_data.first, euv_beam_data.second );
@@ -2235,7 +2234,8 @@ void RayTrace::create_image_struct::unpack( std::pair<const char *, size_t> data
     N          = unpack_buffer<int>( pos, data );
     N_start    = unpack_buffer<int>( pos, data );
     N_parallel = unpack_buffer<int>( pos, data );
-    dz         = unpack_buffer<double>( pos, data );
+    double dz  = unpack_buffer<double>( pos, data );
+    NULL_USE( dz );
     // Copy euv_beam from the buffer
     unsigned int N_bytes_tmp = unpack_buffer<unsigned int>( pos, data );
     if ( N_bytes_tmp > 0 ) {
