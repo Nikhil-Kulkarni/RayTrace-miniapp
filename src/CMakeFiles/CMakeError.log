@@ -1,0 +1,130 @@
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /opt/clang_omp/clang-coral/bin/clang++ 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a187a/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a187a.dir/build.make CMakeFiles/cmTC_a187a.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a187a.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_a187a.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a187a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a187a.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_a187a.dir/testCXXCompiler.cxx.o  -o cmTC_a187a 
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_a187a.dir/build.make:97: recipe for target 'cmTC_a187a' failed
+make[1]: *** [cmTC_a187a] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a187a/fast' failed
+make: *** [cmTC_a187a/fast] Error 2
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /opt/clang_omp/clang-coral/bin/clang++ 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a07d8/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a07d8.dir/build.make CMakeFiles/cmTC_a07d8.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a07d8.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_a07d8.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a07d8
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a07d8.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_a07d8.dir/testCXXCompiler.cxx.o  -o cmTC_a07d8 
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_a07d8.dir/build.make:97: recipe for target 'cmTC_a07d8' failed
+make[1]: *** [cmTC_a07d8] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a07d8/fast' failed
+make: *** [cmTC_a07d8/fast] Error 2
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /opt/clang_omp/clang-coral/bin/clang++ 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a65f2/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a65f2.dir/build.make CMakeFiles/cmTC_a65f2.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a65f2.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_a65f2.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a65f2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a65f2.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_a65f2.dir/testCXXCompiler.cxx.o  -o cmTC_a65f2 
+/usr/bin/ld: cannot find crtbegin.o: No such file or directory
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_a65f2.dir/build.make:97: recipe for target 'cmTC_a65f2' failed
+make[1]: *** [cmTC_a65f2] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a65f2/fast' failed
+make: *** [cmTC_a65f2/fast] Error 2
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /opt/clang_omp/clang-coral/bin/clang++ 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_78416/fast"
+/usr/bin/make -f CMakeFiles/cmTC_78416.dir/build.make CMakeFiles/cmTC_78416.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_78416.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_78416.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_78416
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_78416.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_78416.dir/testCXXCompiler.cxx.o  -o cmTC_78416 
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_78416.dir/build.make:97: recipe for target 'cmTC_78416' failed
+make[1]: *** [cmTC_78416] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_78416/fast' failed
+make: *** [cmTC_78416/fast] Error 2
+
+

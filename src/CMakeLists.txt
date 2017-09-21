@@ -6,9 +6,9 @@ MESSAGE( "==============================" )
 
 
 # Prevent users from building in place
-IF ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}" )
-    MESSAGE( FATAL_ERROR "Building code in place is a bad idea" )
-ENDIF ()
+#IF ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}" )
+#    MESSAGE( FATAL_ERROR "Building code in place is a bad idea. Source: ${CMAKE_CURRENT_SOURCE_DIR} should not equal Binary: ${CMAKE_CURRENT_BINARY_DIR}" )
+#ENDIF ()
 
 
 # Set the project name
