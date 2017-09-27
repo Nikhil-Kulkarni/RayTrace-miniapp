@@ -185,6 +185,9 @@ USE_OPENACC:UNINITIALIZED=0
 //No help, variable specified on the command line.
 USE_OPENMP:UNINITIALIZED=1
 
+//No help, variable specified on the command line.
+USING_CLANG:UNINITIALIZED=1
+
 
 ########################
 # INTERNAL cache entries

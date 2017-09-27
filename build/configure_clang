@@ -24,6 +24,7 @@ cmake                                   \
    -D CXX_STD=11                        \
    -D USE_OPENACC=0                     \
    -D USE_OPENMP=1                      \
+   -D USING_CLANG=1                     \
    -D USE_KOKKOS=0                      \
       -D KOKKOS_DIRECTORY=${KOKKOS_DIR} \
       -D KOKKOS_WRAPPER=${KOKKOS_DIR}/bin/nvcc_wrapper \
