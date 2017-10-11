@@ -90,3 +90,46 @@ Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" p
 
 The CXX compiler identification is Clang, found in "/home/nikhil/RayTrace-miniapp/src/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.o"
 
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a75bb/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a75bb.dir/build.make CMakeFiles/cmTC_a75bb.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a75bb.dir/testCXXCompiler.cxx.o
+/usr/bin/g++      -o CMakeFiles/cmTC_a75bb.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a75bb
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a75bb.dir/link.txt --verbose=1
+/usr/bin/g++        CMakeFiles/cmTC_a75bb.dir/testCXXCompiler.cxx.o  -o cmTC_a75bb 
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_cd3c4/fast"
+/usr/bin/make -f CMakeFiles/cmTC_cd3c4.dir/build.make CMakeFiles/cmTC_cd3c4.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_cd3c4.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/g++      -o CMakeFiles/cmTC_cd3c4.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_cd3c4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cd3c4.dir/link.txt --verbose=1
+/usr/bin/g++        CMakeFiles/cmTC_cd3c4.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_cd3c4  
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+
+
+Performing C++ SOURCE FILE Test CHECK_CXX_FLAGS succeeded with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_70d75/fast"
+/usr/bin/make -f CMakeFiles/cmTC_70d75.dir/build.make CMakeFiles/cmTC_70d75.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_70d75.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -DCHECK_CXX_FLAGS   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -o CMakeFiles/cmTC_70d75.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_70d75
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70d75.dir/link.txt --verbose=1
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -DCHECK_CXX_FLAGS    CMakeFiles/cmTC_70d75.dir/src.cxx.o  -o cmTC_70d75 
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+
+Source file was:
+int main() { return 0; }

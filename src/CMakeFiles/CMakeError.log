@@ -441,3 +441,386 @@ Makefile:126: recipe for target 'cmTC_fafce/fast' failed
 make: *** [cmTC_fafce/fast] Error 2
 
 
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_87de6/fast"
+/usr/bin/make -f CMakeFiles/cmTC_87de6.dir/build.make CMakeFiles/cmTC_87de6.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_87de6.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_87de6.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_87de6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_87de6.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_87de6.dir/testCXXCompiler.cxx.o  -o cmTC_87de6 
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_87de6.dir/build.make:97: recipe for target 'cmTC_87de6' failed
+make[1]: *** [cmTC_87de6] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_87de6/fast' failed
+make: *** [cmTC_87de6/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_d1e95/fast"
+/usr/bin/make -f CMakeFiles/cmTC_d1e95.dir/build.make CMakeFiles/cmTC_d1e95.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d1e95.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_d1e95.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_d1e95
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d1e95.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_d1e95.dir/testCXXCompiler.cxx.o  -o cmTC_d1e95 
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_d1e95.dir/build.make:97: recipe for target 'cmTC_d1e95' failed
+make[1]: *** [cmTC_d1e95] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_d1e95/fast' failed
+make: *** [cmTC_d1e95/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_e6d0d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_e6d0d.dir/build.make CMakeFiles/cmTC_e6d0d.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e6d0d.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_e6d0d.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_e6d0d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e6d0d.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_e6d0d.dir/testCXXCompiler.cxx.o  -o cmTC_e6d0d 
+/usr/bin/ld: cannot find -lstdc++
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_e6d0d.dir/build.make:97: recipe for target 'cmTC_e6d0d' failed
+make[1]: *** [cmTC_e6d0d] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_e6d0d/fast' failed
+make: *** [cmTC_e6d0d/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a9aae/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a9aae.dir/build.make CMakeFiles/cmTC_a9aae.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a9aae.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_a9aae.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a9aae
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a9aae.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_a9aae.dir/testCXXCompiler.cxx.o  -o cmTC_a9aae 
+/usr/bin/ld: cannot find -lgcc_s
+/usr/bin/ld: cannot find -lgcc
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_a9aae.dir/build.make:97: recipe for target 'cmTC_a9aae' failed
+make[1]: *** [cmTC_a9aae] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a9aae/fast' failed
+make: *** [cmTC_a9aae/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_25738/fast"
+/usr/bin/make -f CMakeFiles/cmTC_25738.dir/build.make CMakeFiles/cmTC_25738.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_25738.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_25738.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_25738
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_25738.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_25738.dir/testCXXCompiler.cxx.o  -o cmTC_25738 
+/usr/bin/ld: cannot find -lgcc
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_25738.dir/build.make:97: recipe for target 'cmTC_25738' failed
+make[1]: *** [cmTC_25738] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_25738/fast' failed
+make: *** [cmTC_25738/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_93b94/fast"
+/usr/bin/make -f CMakeFiles/cmTC_93b94.dir/build.make CMakeFiles/cmTC_93b94.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_93b94.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_93b94.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_93b94
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_93b94.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_93b94.dir/testCXXCompiler.cxx.o  -o cmTC_93b94 
+/usr/bin/ld: cannot find crtend.o: No such file or directory
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_93b94.dir/build.make:97: recipe for target 'cmTC_93b94' failed
+make[1]: *** [cmTC_93b94] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_93b94/fast' failed
+make: *** [cmTC_93b94/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_6dc6a/fast"
+/usr/bin/make -f CMakeFiles/cmTC_6dc6a.dir/build.make CMakeFiles/cmTC_6dc6a.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6dc6a.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_6dc6a.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_6dc6a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6dc6a.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_6dc6a.dir/testCXXCompiler.cxx.o  -o cmTC_6dc6a 
+/usr/bin/ld: cannot find crtend.o: No such file or directory
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_6dc6a.dir/build.make:97: recipe for target 'cmTC_6dc6a' failed
+make[1]: *** [cmTC_6dc6a] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_6dc6a/fast' failed
+make: *** [cmTC_6dc6a/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_80137/fast"
+/usr/bin/make -f CMakeFiles/cmTC_80137.dir/build.make CMakeFiles/cmTC_80137.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_80137.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_80137.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_80137
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_80137.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_80137.dir/testCXXCompiler.cxx.o  -o cmTC_80137 
+/usr/bin/ld: cannot find crtend.o: No such file or directory
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_80137.dir/build.make:97: recipe for target 'cmTC_80137' failed
+make[1]: *** [cmTC_80137] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_80137/fast' failed
+make: *** [cmTC_80137/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+clang-4.0: error: no input files
+Determining if the CXX compiler works failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b51a0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b51a0.dir/build.make CMakeFiles/cmTC_b51a0.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b51a0.dir/testCXXCompiler.cxx.o
+/opt/clang_omp/clang-coral/bin/clang++      -o CMakeFiles/cmTC_b51a0.dir/testCXXCompiler.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_b51a0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b51a0.dir/link.txt --verbose=1
+/opt/clang_omp/clang-coral/bin/clang++        CMakeFiles/cmTC_b51a0.dir/testCXXCompiler.cxx.o  -o cmTC_b51a0 
+/usr/bin/ld: cannot find crtend.o: No such file or directory
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/cmTC_b51a0.dir/build.make:97: recipe for target 'cmTC_b51a0' failed
+make[1]: *** [cmTC_b51a0] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_b51a0/fast' failed
+make: *** [cmTC_b51a0/fast] Error 2
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+g++: fatal error: no input files
+compilation terminated.
+Performing C++ SOURCE FILE Test USE_MPI failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_e98f1/fast"
+/usr/bin/make -f CMakeFiles/cmTC_e98f1.dir/build.make CMakeFiles/cmTC_e98f1.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e98f1.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -DUSE_MPI   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024   -o CMakeFiles/cmTC_e98f1.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx:1:17: fatal error: mpi.h: No such file or directory
+compilation terminated.
+CMakeFiles/cmTC_e98f1.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_e98f1.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_e98f1.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_e98f1/fast' failed
+make: *** [cmTC_e98f1/fast] Error 2
+
+Source file was:
+#include <mpi.h>
+     int main(int, char**) {
+        MPI_Init(NULL, NULL);
+        MPI_Finalize();
+     }
+Performing C++ SOURCE FILE Test SHARED_PTR failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_148ef/fast"
+/usr/bin/make -f CMakeFiles/cmTC_148ef.dir/build.make CMakeFiles/cmTC_148ef.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_148ef.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DSHARED_PTR   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_148ef.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_148ef.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_148ef.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_148ef.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_148ef/fast' failed
+make: *** [cmTC_148ef/fast] Error 2
+
+Source file was:
+#include <memory>
+	     int main() {
+	        std::shared_ptr<int> ptr;
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test STD_FUNCTION failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f9e03/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f9e03.dir/build.make CMakeFiles/cmTC_f9e03.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f9e03.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DSTD_FUNCTION   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_f9e03.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_f9e03.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_f9e03.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_f9e03.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_f9e03/fast' failed
+make: *** [cmTC_f9e03/fast] Error 2
+
+Source file was:
+#include <functional>
+         void myfun(int) { }
+	     int main() {
+            std::function<void(int)> f_display = myfun;
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test STD_TUPLE failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_af063/fast"
+/usr/bin/make -f CMakeFiles/cmTC_af063.dir/build.make CMakeFiles/cmTC_af063.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_af063.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DSTD_TUPLE   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_af063.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_af063.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_af063.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_af063.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_af063/fast' failed
+make: *** [cmTC_af063/fast] Error 2
+
+Source file was:
+#include <tuple>
+	     int main() {
+            std::tuple<double,int> x(1,2);
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test VARIADIC_TEMPLATE failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_35a69/fast"
+/usr/bin/make -f CMakeFiles/cmTC_35a69.dir/build.make CMakeFiles/cmTC_35a69.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_35a69.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DVARIADIC_TEMPLATE   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_35a69.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_35a69.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_35a69.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_35a69.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_35a69/fast' failed
+make: *** [cmTC_35a69/fast] Error 2
+
+Source file was:
+#include <iostream>
+         template<class... Ts> void test(Ts... ts) {}
+	     int main() {
+            test<int,double>(1,3);
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test THREAD_LOCAL failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_e3689/fast"
+/usr/bin/make -f CMakeFiles/cmTC_e3689.dir/build.make CMakeFiles/cmTC_e3689.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e3689.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DTHREAD_LOCAL   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_e3689.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_e3689.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_e3689.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_e3689.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_e3689/fast' failed
+make: *** [cmTC_e3689/fast] Error 2
+
+Source file was:
+#include <iostream>
+         template<class... Ts> void test(Ts... ts) {}
+	     int main() {
+            thread_local static int id = 0;
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test MOVE_CONSTRUCTOR failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0c2bc/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0c2bc.dir/build.make CMakeFiles/cmTC_0c2bc.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0c2bc.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DMOVE_CONSTRUCTOR   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_0c2bc.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_0c2bc.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_0c2bc.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_0c2bc.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_0c2bc/fast' failed
+make: *** [cmTC_0c2bc/fast] Error 2
+
+Source file was:
+#include <iostream>
+         struct st { int i; st(){} st(st&&){} private: st(st&); };
+         st fun() { return st(); }
+	     int main() {
+            st tmp = fun();
+	        return 0;
+	     }
+Performing C++ SOURCE FILE Test STATIC_ASSERT failed with the following output:
+Change Dir: /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_41e39/fast"
+/usr/bin/make -f CMakeFiles/cmTC_41e39.dir/build.make CMakeFiles/cmTC_41e39.dir/build
+make[1]: Entering directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_41e39.dir/src.cxx.o
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -DSTATIC_ASSERT   -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++   -o CMakeFiles/cmTC_41e39.dir/src.cxx.o -c /home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+g++: error: unrecognized command line option ‘-stdlib=libc++’
+CMakeFiles/cmTC_41e39.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_41e39.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_41e39.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/nikhil/RayTrace-miniapp/src/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_41e39/fast' failed
+make: *** [cmTC_41e39/fast] Error 2
+
+Source file was:
+#include <iostream>
+	     int main() {
+            static_assert(true,"test");
+	        return 0;
+	     }

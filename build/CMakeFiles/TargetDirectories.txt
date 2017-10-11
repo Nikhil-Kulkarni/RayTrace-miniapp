@@ -1,0 +1,11 @@
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/rebuild_cache.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/edit_cache.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/install/local.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/install.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/list_install_components.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/copy-RAYTRACE-include.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/distclean.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/copy-RAYTRACE-Data.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/RayTrace.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/CreateImage.dir
+/home/nikhil/RayTrace-miniapp/build/CMakeFiles/install/strip.dir

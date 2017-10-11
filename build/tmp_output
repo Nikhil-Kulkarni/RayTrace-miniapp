@@ -1,0 +1,43 @@
+cmake -v                                    -D CMAKE_BUILD_TYPE=Release             -D CMAKE_C_COMPILER=/opt/clang_omp/clang-coral/bin/clang   -D CMAKE_CXX_COMPILER=/opt/clang_omp/clang-coral/bin/clang++   -D LDFLAGS=-L /usr/lib/gcc/x86_64-linux-gnu/5/ -L /opt/clang_omp/clang-coral/lib        -D CXX_STD=11                           -D USE_OPENACC=0                        -D USE_OPENMP=1                         -D USING_CLANG=1                        -D USE_KOKKOS=0                            -D KOKKOS_DIRECTORY=       -D KOKKOS_WRAPPER=/bin/nvcc_wrapper    -D USE_CUDA=0                              -D CUDA_FLAGS=-arch sm_30          ../src
+==============================
+Configuring Ray Trace MiniApps
+==============================
+-- The CXX compiler identification is Clang 4.0.0
+-- Check for working CXX compiler: /opt/clang_omp/clang-coral/bin/clang++
+-- Check for working CXX compiler: /opt/clang_omp/clang-coral/bin/clang++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+ LDFLAGS ARE -L /usr/lib/gcc/x86_64-linux-gnu/5/ -L /opt/clang_omp/clang-coral/lib
+ LDLIBS ARE 
+Using Clang
+C++ standard: 11
+-- Performing Test CHECK_CXX_FLAGS
+-- Performing Test CHECK_CXX_FLAGS - Success
+-- Performing Test USE_MPI
+-- Performing Test USE_MPI - Failed
+Using OpenMP
+-- Performing Test SHARED_PTR
+-- Performing Test SHARED_PTR - Failed
+-- Performing Test STD_FUNCTION
+-- Performing Test STD_FUNCTION - Failed
+-- Performing Test STD_TUPLE
+-- Performing Test STD_TUPLE - Failed
+-- Performing Test VARIADIC_TEMPLATE
+-- Performing Test VARIADIC_TEMPLATE - Failed
+-- Performing Test THREAD_LOCAL
+-- Performing Test THREAD_LOCAL - Failed
+-- Performing Test MOVE_CONSTRUCTOR
+-- Performing Test MOVE_CONSTRUCTOR - Failed
+-- Performing Test STATIC_ASSERT
+-- Performing Test STATIC_ASSERT - Failed
+-- Configuring done
+-- Generating done
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_C_COMPILER
+
+
+-- Build files have been written to: /home/nikhil/RayTrace-miniapp/build

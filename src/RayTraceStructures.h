@@ -206,8 +206,8 @@ struct seed_beam_struct {
     //! Swap the data with rhs
     void swap( seed_beam_struct &rhs );
 protected:
-    seed_beam_struct( const seed_beam_struct & );            // Private copy constructor
-    seed_beam_struct &operator=( const seed_beam_struct & ); // Private assignment operator
+    seed_beam_struct( seed_beam_struct && );            // Private copy constructor
+    seed_beam_struct &operator=( seed_beam_struct && ); // Private assignment operator
 };
 
 

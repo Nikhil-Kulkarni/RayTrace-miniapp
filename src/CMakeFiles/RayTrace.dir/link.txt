@@ -1,0 +1,2 @@
+/usr/bin/ar qc libRayTrace.a  CMakeFiles/RayTrace.dir/RayTraceImage.cpp.o CMakeFiles/RayTrace.dir/RayTraceStructures.cpp.o CMakeFiles/RayTrace.dir/utilities/RayUtilities.cpp.o CMakeFiles/RayTrace.dir/AtomicModel/interp.cpp.o CMakeFiles/RayTrace.dir/RayTraceImageCPU.cpp.o CMakeFiles/RayTrace.dir/CreateImageHelpers.cpp.o
+/usr/bin/ranlib libRayTrace.a

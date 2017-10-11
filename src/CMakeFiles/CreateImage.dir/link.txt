@@ -1,0 +1,1 @@
+/usr/bin/g++     -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -O3 -DNDEBUG   CMakeFiles/CreateImage.dir/CreateImage.cpp.o  -o CreateImage libRayTrace.a -L /usr/lib/gcc/x86_64-linux-gnu/5 -L /opt/clang_omp/clang-coral/lib 

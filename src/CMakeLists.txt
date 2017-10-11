@@ -10,10 +10,15 @@ MESSAGE( "==============================" )
 #    MESSAGE( FATAL_ERROR "Building code in place is a bad idea. Source: ${CMAKE_CURRENT_SOURCE_DIR} should not equal Binary: ${CMAKE_CURRENT_BINARY_DIR}" )
 #ENDIF ()
 
+SET( CMAKE_CXX_COMPILER_WORKS:STRING=1)
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "/usr/lib/gcc/x86_64-linux-gnu/5")
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "/usr/lib/gcc/x86_64-linux-gnu/5")
 
 # Set the project name
 PROJECT( RAYTRACE-MINIAPPS CXX )
 
+MESSAGE (" LDFLAGS ARE " ${LDFLAGS} )
+MESSAGE (" LDLIBS ARE " ${LDLIBS} )
 
 # Set some common paths
 SET( RAYTRACE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )

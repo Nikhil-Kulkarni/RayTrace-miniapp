@@ -10,17 +10,36 @@
 ###Clang OpenMP specific info###
 export CUDADIR=/usr/local/cuda
 export PATH=$PATH:/opt/clang_omp/clang-coral/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/clang_omp/clang-coral/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/clang_omp/clang-coral/lib:/opt/clang_omp/clang-coral/omprtl/lib
 export CLANG_BIN=/opt/clang_omp/clang-coral/bin
 export CLANG_OMP_LIB=/opt/clang_omp/clang-coral/lib
+#Cmake should use this to check for files like crtend.o
+export COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5
 
 rm -rf CMake*
-CLANG_FLAGS="/usr/lib/gcc/x86_64-linux-gnu/5"
-cmake                                   \
+CLANG_FLAGS="/usr/lib/gcc/x86_64-linux-gnu/5/"
+
+echo "cmake -v                                 \
    -D CMAKE_BUILD_TYPE=Release          \
    -D CMAKE_C_COMPILER="${CLANG_BIN}/clang"\
    -D CMAKE_CXX_COMPILER="${CLANG_BIN}/clang++"\
-   -D LDFLAGS="-L ${CLANG_FLAGS} -L ${CLANG_OMP_LIB}"     \
+   -D LDFLAGS="-L ${CLANG_FLAGS} -L ${CLANG_OMP_LIB} -L /opt/clang_omp/clang-coral/omprtl/lib -lomp"     \
+   -D CXX_STD=11                        \
+   -D USE_OPENACC=0                     \
+   -D USE_OPENMP=1                      \
+   -D USING_CLANG=1                     \
+   -D USE_KOKKOS=0                      \
+      -D KOKKOS_DIRECTORY=${KOKKOS_DIR} \
+      -D KOKKOS_WRAPPER=${KOKKOS_DIR}/bin/nvcc_wrapper \
+   -D USE_CUDA=0                        \
+      -D CUDA_FLAGS="-arch sm_30"       \
+   ../src"
+
+cmake -v                                 \
+   -D CMAKE_BUILD_TYPE=Release          \
+   -D CMAKE_C_COMPILER="${CLANG_BIN}/clang"\
+   -D CMAKE_CXX_COMPILER="${CLANG_BIN}/clang++"\
+   -D LDFLAGS="-L ${CLANG_FLAGS} -L ${CLANG_OMP_LIB} -L /opt/clang_omp/clang-coral/omprtl/lib -lomp"     \
    -D CXX_STD=11                        \
    -D USE_OPENACC=0                     \
    -D USE_OPENMP=1                      \

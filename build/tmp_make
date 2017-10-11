@@ -1,0 +1,24 @@
+Scanning dependencies of target copy-RAYTRACE-include
+[  0%] Built target copy-RAYTRACE-include
+Scanning dependencies of target copy-RAYTRACE-Data
+[  0%] Built target copy-RAYTRACE-Data
+Scanning dependencies of target RayTrace
+[ 11%] Building CXX object CMakeFiles/RayTrace.dir/RayTraceImage.cpp.o
+[ 22%] Building CXX object CMakeFiles/RayTrace.dir/RayTraceStructures.cpp.o
+[ 33%] Building CXX object CMakeFiles/RayTrace.dir/utilities/RayUtilities.cpp.o
+[ 44%] Building CXX object CMakeFiles/RayTrace.dir/AtomicModel/interp.cpp.o
+[ 55%] Building CXX object CMakeFiles/RayTrace.dir/RayTraceImageCPU.cpp.o
+[ 66%] Building CXX object CMakeFiles/RayTrace.dir/CreateImageHelpers.cpp.o
+[ 77%] Linking CXX static library libRayTrace.a
+[ 77%] Built target RayTrace
+Scanning dependencies of target CreateImage
+[ 88%] Building CXX object CMakeFiles/CreateImage.dir/CreateImage.cpp.o
+[100%] Linking CXX executable CreateImage
+/usr/bin/ld: cannot find -lomp
+clang-4.0: error: linker command failed with exit code 1 (use -v to see invocation)
+CMakeFiles/CreateImage.dir/build.make:95: recipe for target 'CreateImage' failed
+make[2]: *** [CreateImage] Error 1
+CMakeFiles/Makefile2:210: recipe for target 'CMakeFiles/CreateImage.dir/all' failed
+make[1]: *** [CMakeFiles/CreateImage.dir/all] Error 2
+Makefile:127: recipe for target 'all' failed
+make: *** [all] Error 2

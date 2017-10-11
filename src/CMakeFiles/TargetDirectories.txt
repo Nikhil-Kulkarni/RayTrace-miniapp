@@ -1,0 +1,5 @@
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/rebuild_cache.dir
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/edit_cache.dir
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/install.dir
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/list_install_components.dir
+/home/nikhil/RayTrace-miniapp/src/CMakeFiles/install/local.dir
