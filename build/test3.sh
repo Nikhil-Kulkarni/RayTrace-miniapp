@@ -1,0 +1,1 @@
+/opt/clang_omp/clang-coral/bin/clang++ --verbose -std=c++11 -Wall -Wno-missing-braces -Wmissing-field-initializers -ftemplate-depth=1024 -fopenmp -pthread -stdlib=libc++ -O3 -DNDEBUG   CMakeFiles/CreateImage.dir/CreateImage.cpp.o -o CreateImage3 libRayTrace.a -L /opt/clang_omp/clang-coral/omprtl/lib/ -lomp -B /usr/lib/gcc/x86_64-linux-gnu/5/
